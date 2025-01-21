@@ -1,35 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import { Activites } from "./Components/Activities/Activities";
+import { Profile } from "./Components/Profiles/Profile";
+import Tabs from "./Components/Tabs/Tabs";
+import { Posts } from "./Components/Posts/Posts";
+import { Navbar } from "./Components/Navbar/Navbar";
+import { Login } from "./Components/Login/Login";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [auth, setAuth] = useState(false);
+  const tabData = [
+    { label: "Profiles", content: <Profile /> },
+    { label: "Posts", content: <Posts /> },
+    { label: "Activities", content: <Activites /> },
+  ];
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Navbar setAuth={setAuth} auth={auth} />
+      {auth ? (
+        <div
+          style={{
+            padding: "24px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Tabs tabs={tabData} />
+        </div>
+      ) : (
+        <Login setAuth={setAuth} />
+      )}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
