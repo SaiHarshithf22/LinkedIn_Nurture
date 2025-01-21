@@ -26,6 +26,33 @@ const columnDefs = [
     width: 200,
     flex: 1,
   },
+  {
+    field: "is_scrape_posts",
+    headerName: "Scrape Posts",
+    width: 200,
+    flex: 1,
+    cellRenderer: (params) => {
+      return <ProfileCheckbox name="is_scrape_posts" data={params} />;
+    },
+  },
+  {
+    field: "is_scrape_comments",
+    headerName: "Scrape Comments",
+    width: 200,
+    flex: 1,
+    cellRenderer: (params) => (
+      <ProfileCheckbox name="is_scrape_comments" data={params} />
+    ),
+  },
+  {
+    field: "is_scrape_reactions",
+    headerName: "Scrape Reactions",
+    width: 200,
+    flex: 1,
+    cellRenderer: (params) => (
+      <ProfileCheckbox name="is_scrape_reactions" data={params} />
+    ),
+  },
 ];
 
 const baseURL = import.meta.env.VITE_BASE_URL;

@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { AppBar, IconButton, Menu, MenuItem, Toolbar } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
+import {
+  AppBar,
+  IconButton,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import { AccountCircle } from "@mui/icons-material";
 
 export const Navbar = ({ auth, setAuth }) => {
@@ -16,7 +22,10 @@ export const Navbar = ({ auth, setAuth }) => {
   };
   return (
     <AppBar position="sticky">
-      <Toolbar sx={{ flexDirection: "row-reverse" }}>
+      <Toolbar sx={{}}>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          LinkedIn Nurture
+        </Typography>
         {auth && (
           <div>
             <IconButton
