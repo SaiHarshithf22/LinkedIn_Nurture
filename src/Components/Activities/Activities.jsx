@@ -66,21 +66,19 @@ export const Activites = () => {
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
-  const [activityType, setActivityType] = useState("");
+  const [activityType, setActivityType] = useState("all");
   const token = localStorage.getItem("authToken");
 
   const getActivities = async (params) => {
     const pageNum = Number(params?.page);
     const validatedPage = !isNaN(pageNum) && pageNum > 0 ? pageNum : 1;
 
+    const selectedActivity = params?.activityType?.trim() || activityType;
+
     const queryParams = new URLSearchParams({
       page: validatedPage.toString(),
+      activity_type: selectedActivity === "all" ? "" : selectedActivity,
     });
-
-    const selectedActivity = params?.activityType?.trim() || activityType;
-    if (selectedActivity) {
-      queryParams.append("activity_type", selectedActivity);
-    }
 
     const apiUrl = `${baseURL}/linkedin/activities?${queryParams.toString()}`;
     try {
@@ -129,10 +127,10 @@ export const Activites = () => {
       >
         <h2>Activities</h2>
         <RadioButtons
-          defaultValue=""
+          defaultValue="all"
           label="Activity Type"
           options={[
-            { label: "All", value: "" },
+            { label: "All", value: "all" },
             { label: "Reaction", value: "reaction" },
             { label: "Comment", value: "comment" },
           ]}
