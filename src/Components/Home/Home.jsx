@@ -26,6 +26,7 @@ export const Home = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        backgroundColor: "white",
       }}
     >
       <Tabs tabs={tabData} />

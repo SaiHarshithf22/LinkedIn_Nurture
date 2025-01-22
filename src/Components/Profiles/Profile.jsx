@@ -4,7 +4,6 @@ import Modal from "../Modal/Modal";
 import { CustomCheckbox } from "../CustomCheckbox/CustomCheckbox";
 import { ProfileCheckbox } from "../ProfileCheckbox/ProfileCheckbox";
 import { useToast } from "../Toaster/Toaster";
-import { Pagination } from "@mui/material";
 import { CustomPagination } from "../CustomPagination/Pagination";
 
 const columnDefs = [
@@ -187,11 +186,16 @@ export const Profile = () => {
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
+  const [perPage, setPerPage] = useState("20");
   const modalRef = useRef(null);
   const token = localStorage.getItem("authToken");
 
-  const getProfiles = async (page) => {
-    const apiUrl = `${baseURL}/linkedin/profiles?page=${page ? page : 1}`;
+  const getProfiles = async (params) => {
+    const page = params?.page ? params?.page : 1;
+    const limit = params?.perPage ? params?.perPage : perPage;
+    const apiUrl = `${baseURL}/linkedin/profiles?page=${
+      page ? page : 1
+    }&limit=${limit}`;
 
     try {
       const response = await fetch(apiUrl, {
@@ -217,7 +221,12 @@ export const Profile = () => {
   };
 
   const onPageChange = (event, value) => {
-    getProfiles(value);
+    getProfiles({ page: value });
+  };
+
+  const handlePerPageChange = (value) => {
+    getProfiles({ perPage: value });
+    setPerPage(value);
   };
 
   useEffect(() => {
@@ -233,7 +242,7 @@ export const Profile = () => {
           marginBottom: "20px",
         }}
       >
-        <h2>Profiles</h2>
+        <h2 style={{ color: "#00165a" }}>Profiles</h2>
         <button
           style={{
             padding: "8px 16px",
@@ -247,7 +256,7 @@ export const Profile = () => {
             modalRef.current?.showModal();
           }}
         >
-          New Profile
+          Add Profile
         </button>
       </div>
       <TableComponent
@@ -261,6 +270,8 @@ export const Profile = () => {
         totalPages={data?.pagination?.total_pages}
         currentPage={data?.pagination?.current_page}
         onPageChange={onPageChange}
+        onPerPageChange={handlePerPageChange}
+        perPage={perPage}
       />
 
       <Modal

@@ -34,6 +34,7 @@ export default function RadioButtons({
             control={<Radio size="small" />}
             label={option?.label}
             key={option?.value}
+            sx={{ color: "black" }}
           />
         ))}
       </RadioGroup>
