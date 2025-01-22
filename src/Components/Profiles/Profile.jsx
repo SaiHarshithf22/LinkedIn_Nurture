@@ -63,6 +63,7 @@ const ModalContent = ({ modalRef }) => {
   const [scrapePosts, setScrapePosts] = useState(true);
   const [scrapeComments, setScrapeComments] = useState(true);
   const [scrapeReactions, setScrapeReactions] = useState(true);
+  const showToast = useToast();
 
   const token = localStorage.getItem("authToken");
   const buttonStyle = {
@@ -76,7 +77,6 @@ const ModalContent = ({ modalRef }) => {
 
   const addNewProfile = async () => {
     const apiUrl = `${baseURL}/linkedin/profiles`;
-    const showToast = useToast();
 
     const requestBody = {
       profile: profileUrl,
