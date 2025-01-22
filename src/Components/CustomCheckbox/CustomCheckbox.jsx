@@ -9,7 +9,7 @@ export const CustomCheckbox = ({
   setChecked,
 }) => {
   const handleChange = (event) => {
-    onCheckChange();
+    onCheckChange(event.target.checked);
     setChecked(event.target.checked);
   };
   return (
