@@ -23,12 +23,14 @@ const columnDefs = [
   },
   {
     field: "url",
-    headerName: "Post URL",
+    headerName: "Post",
     flex: 2,
     cellRenderer: (params) => {
       return (
         <a href={params.value} target="_blank" rel="noopener noreferrer">
-          {params?.value?.split("com/")?.[1]}
+          {params?.data?.text
+            ? params?.data?.text
+            : params?.value?.split("com/")?.[1]}
         </a>
       );
     },

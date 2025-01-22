@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
+import RadioButtons from "../RadioButton/RadioButton";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -65,10 +66,23 @@ export const Activites = () => {
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
+  const [activityType, setActivityType] = useState("");
   const token = localStorage.getItem("authToken");
 
-  const getActivities = async (page) => {
-    const apiUrl = `${baseURL}/linkedin/activities?page=${page ? page : 1}`;
+  const getActivities = async (params) => {
+    const pageNum = Number(params?.page);
+    const validatedPage = !isNaN(pageNum) && pageNum > 0 ? pageNum : 1;
+
+    const queryParams = new URLSearchParams({
+      page: validatedPage.toString(),
+    });
+
+    const selectedActivity = params?.activityType?.trim() || activityType;
+    if (selectedActivity) {
+      queryParams.append("activity_type", selectedActivity);
+    }
+
+    const apiUrl = `${baseURL}/linkedin/activities?${queryParams.toString()}`;
     try {
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -93,7 +107,11 @@ export const Activites = () => {
   };
 
   const onPageChange = (event, value) => {
-    getActivities(value);
+    getActivities({ page: value });
+  };
+
+  const handleActivityTypeChange = async (value) => {
+    await getActivities({ activityType: value });
   };
 
   useEffect(() => {
@@ -110,6 +128,18 @@ export const Activites = () => {
         }}
       >
         <h2>Activities</h2>
+        <RadioButtons
+          defaultValue=""
+          label="Activity Type"
+          options={[
+            { label: "All", value: "" },
+            { label: "Reaction", value: "reaction" },
+            { label: "Comment", value: "comment" },
+          ]}
+          onChange={handleActivityTypeChange}
+          value={activityType}
+          setValue={setActivityType}
+        />
       </div>
       <TableComponent
         rowData={data?.activities}
