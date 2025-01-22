@@ -2,13 +2,12 @@ import { Checkbox, FormControlLabel } from "@mui/material";
 import { useState } from "react";
 
 export const CustomCheckbox = ({
-  initialValue = false,
   label,
   onCheckChange = () => {},
   name,
+  checked,
+  setChecked,
 }) => {
-  const [checked, setChecked] = useState(initialValue);
-
   const handleChange = (event) => {
     onCheckChange();
     setChecked(event.target.checked);

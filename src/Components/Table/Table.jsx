@@ -12,8 +12,6 @@ const TableComponent = ({
     resizable: true,
     autoHeight: true,
   },
-  pagination = true,
-  paginationPageSize = 20,
   height = "800px",
   width = "1000px",
 }) => {
@@ -29,12 +27,8 @@ const TableComponent = ({
         rowData={rowData}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
-        pagination={pagination}
-        paginationPageSize={paginationPageSize}
         animateRows={true}
         enableCellTextSelection={true}
-        suppressRowTransform={true}
-        suppressColumnVirtualisation={false}
         suppressScrollOnNewData={true}
       />
     </div>

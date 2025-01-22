@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { activities } from "../../../constants/activities";
-import ProfileRenderer from "../ProfileRenderer/ProfileRenderer";
 import TableComponent from "../Table/Table";
+import { CustomPagination } from "../CustomPagination/Pagination";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -11,15 +10,17 @@ const columnDefs = [
     field: "profile",
     headerName: "Profile",
     valueGetter: (params) => params.data.profile.name,
-    cellRenderer: (params) => (
-      <a
-        href={params.data.profile.url}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {params.data.profile.name}
-      </a>
-    ),
+    cellRenderer: (params) => {
+      return (
+        <a
+          href={params.data.profile.profile}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {params.data.profile.name}
+        </a>
+      );
+    },
     width: 200,
     flex: 1,
   },
@@ -30,14 +31,16 @@ const columnDefs = [
     flex: 1,
   },
   {
-    flex: 1,
-    field: "post_url",
-    headerName: "Post URL",
-    cellRenderer: (params) => (
-      <a href={params.value} target="_blank" rel="noopener noreferrer">
-        View Post
-      </a>
-    ),
+    flex: 2,
+    field: "url",
+    headerName: "Post",
+    cellRenderer: (params) => {
+      return (
+        <a href={params.value} target="_blank" rel="noopener noreferrer">
+          {params?.data?.post_content}
+        </a>
+      );
+    },
   },
   {
     flex: 1,
@@ -59,16 +62,19 @@ const columnDefs = [
 ];
 
 export const Activites = () => {
-  const [activityData, setActivityData] = useState(activities);
+  const [data, setData] = useState({
+    pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
+  });
+  const token = localStorage.getItem("authToken");
 
-  const getActivities = async () => {
-    const apiUrl = `${baseURL}/activities`;
-
+  const getActivities = async (page) => {
+    const apiUrl = `${baseURL}/linkedin/activities?page=${page ? page : 1}`;
     try {
       const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token,
         },
       });
 
@@ -78,12 +84,16 @@ export const Activites = () => {
 
       const data = await response.json();
       if (data) {
-        setActivityData(data?.activities);
+        setData(data);
       }
     } catch (error) {
       console.error("Error fetching activities:", error);
       return null;
     }
+  };
+
+  const onPageChange = (event, value) => {
+    getActivities(value);
   };
 
   useEffect(() => {
@@ -102,10 +112,15 @@ export const Activites = () => {
         <h2>Activities</h2>
       </div>
       <TableComponent
-        rowData={activityData}
+        rowData={data?.activities}
         columnDefs={columnDefs}
         height="600px"
         width="900px"
+      />
+      <CustomPagination
+        totalPages={data?.pagination?.total_pages}
+        currentPage={data?.pagination?.current_page}
+        onPageChange={onPageChange}
       />
     </div>
   );

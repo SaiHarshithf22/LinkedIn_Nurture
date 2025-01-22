@@ -1,10 +1,11 @@
 import { useRef, useState, useEffect } from "react";
 import TableComponent from "../Table/Table";
 import Modal from "../Modal/Modal";
-import { profiles } from "../../../constants/profiles";
-import { CheckBox } from "@mui/icons-material";
 import { CustomCheckbox } from "../CustomCheckbox/CustomCheckbox";
 import { ProfileCheckbox } from "../ProfileCheckbox/ProfileCheckbox";
+import { useToast } from "../Toaster/Toaster";
+import { Pagination } from "@mui/material";
+import { CustomPagination } from "../CustomPagination/Pagination";
 
 const columnDefs = [
   {
@@ -14,7 +15,7 @@ const columnDefs = [
     flex: 1,
     cellRenderer: (params) => {
       return (
-        <a href={params.data.url} target="_blank" rel="noopener noreferrer">
+        <a href={params.data.profile} target="_blank" rel="noopener noreferrer">
           {params.data.name}
         </a>
       );
@@ -59,6 +60,11 @@ const baseURL = import.meta.env.VITE_BASE_URL;
 
 const ModalContent = ({ modalRef }) => {
   const [profileUrl, setProfileUrl] = useState("");
+  const [scrapePosts, setScrapePosts] = useState(true);
+  const [scrapeComments, setScrapeComments] = useState(true);
+  const [scrapeReactions, setScrapeReactions] = useState(true);
+
+  const token = localStorage.getItem("authToken");
   const buttonStyle = {
     padding: "5px 10px",
     backgroundColor: "#007bff",
@@ -69,20 +75,24 @@ const ModalContent = ({ modalRef }) => {
   };
 
   const addNewProfile = async () => {
-    setProfileUrl("");
-    const apiUrl = `${baseURL}/profiles`;
+    const apiUrl = `${baseURL}/linkedin/profiles`;
+    const showToast = useToast();
 
     const requestBody = {
-      profiles: [profileUrl],
+      profile: profileUrl,
+      is_scrape_posts: scrapePosts,
+      is_scrape_reactions: scrapeReactions,
+      is_scrape_comments: scrapeComments,
     };
 
     try {
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json", // Ensure the request body is JSON
+          "Content-Type": "application/json",
+          Authorization: token,
         },
-        body: JSON.stringify(requestBody), // Convert the body to a JSON string
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -90,10 +100,11 @@ const ModalContent = ({ modalRef }) => {
       }
 
       const data = await response.json(); // Parse the JSON response
-
-      console.log("Profiles posted successfully:", data);
-      return data;
+      if (data?.id) {
+        modalRef.current.close();
+      }
     } catch (error) {
+      showToast("Error adding profiles", error);
       console.error("Error posting profiles:", error);
       return null;
     }
@@ -121,9 +132,24 @@ const ModalContent = ({ modalRef }) => {
         placeholder="Add Profile URL"
         style={{ padding: "8px", fontSize: "18px" }}
       />
-      <CustomCheckbox label="Scrape Posts" initialValue={true} />
-      <CustomCheckbox label="Scrape Comments" initialValue={true} />
-      <CustomCheckbox label="Scrape Reactions" initialValue={true} />
+      <CustomCheckbox
+        label="Scrape Posts"
+        initialValue={true}
+        checked={scrapePosts}
+        setChecked={setScrapePosts}
+      />
+      <CustomCheckbox
+        label="Scrape Comments"
+        initialValue={true}
+        checked={scrapeComments}
+        setChecked={setScrapeComments}
+      />
+      <CustomCheckbox
+        label="Scrape Reactions"
+        initialValue={true}
+        checked={scrapeReactions}
+        setChecked={setScrapeReactions}
+      />
 
       <div
         style={{
@@ -158,17 +184,21 @@ const ModalContent = ({ modalRef }) => {
 };
 
 export const Profile = () => {
-  const [profileData, setProfileData] = useState(profiles);
+  const [data, setData] = useState({
+    pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
+  });
   const modalRef = useRef(null);
+  const token = localStorage.getItem("authToken");
 
-  const getProfiles = async () => {
-    const apiUrl = `${baseURL}/profiles`;
+  const getProfiles = async (page) => {
+    const apiUrl = `${baseURL}/linkedin/profiles?page=${page ? page : 1}`;
 
     try {
       const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token,
         },
       });
 
@@ -178,12 +208,16 @@ export const Profile = () => {
 
       const data = await response.json();
       if (data) {
-        setProfileData(data?.profiles);
+        setData(data);
       }
     } catch (error) {
       console.error("Error fetching profiles:", error);
       return null;
     }
+  };
+
+  const onPageChange = (event, value) => {
+    getProfiles(value);
   };
 
   useEffect(() => {
@@ -217,11 +251,18 @@ export const Profile = () => {
         </button>
       </div>
       <TableComponent
-        rowData={profileData}
+        rowData={data?.profiles}
         columnDefs={columnDefs}
         height="600px"
         width="900px"
       />
+
+      <CustomPagination
+        totalPages={data?.pagination?.total_pages}
+        currentPage={data?.pagination?.current_page}
+        onPageChange={onPageChange}
+      />
+
       <Modal
         modalRef={modalRef}
         title={"Add New Profile"}

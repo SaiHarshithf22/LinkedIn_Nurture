@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import TableComponent from "../Table/Table";
-import { tempPosts } from "../../../constants/posts";
+import { CustomPagination } from "../CustomPagination/Pagination";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -13,7 +13,7 @@ const columnDefs = [
     filter: "agTextColumnFilter",
     cellRenderer: (params) => (
       <a
-        href={params.data.profile.url}
+        href={params.data.profile.profile}
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -22,14 +22,16 @@ const columnDefs = [
     ),
   },
   {
-    field: "post",
+    field: "url",
     headerName: "Post URL",
-    flex: 1,
-    cellRenderer: (params) => (
-      <a href={params.value} target="_blank" rel="noopener noreferrer">
-        View Post
-      </a>
-    ),
+    flex: 2,
+    cellRenderer: (params) => {
+      return (
+        <a href={params.value} target="_blank" rel="noopener noreferrer">
+          {params?.value?.split("com/")?.[1]}
+        </a>
+      );
+    },
   },
   {
     field: "timestamp",
@@ -41,16 +43,20 @@ const columnDefs = [
 ];
 
 export const Posts = () => {
-  const [postsData, setPostData] = useState(tempPosts);
+  const [data, setData] = useState({
+    pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
+  });
+  const token = localStorage.getItem("authToken");
 
-  const getPosts = async () => {
-    const apiUrl = `${baseURL}/posts`;
+  const getPosts = async (page) => {
+    const apiUrl = `${baseURL}/linkedin/posts?page=${page ? page : 1}`;
 
     try {
       const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token,
         },
       });
 
@@ -60,12 +66,16 @@ export const Posts = () => {
 
       const data = await response.json();
       if (data) {
-        setPostData(data?.posts);
+        setData(data);
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
       return null;
     }
+  };
+
+  const onPageChange = (event, value) => {
+    getPosts(value);
   };
 
   useEffect(() => {
@@ -84,10 +94,15 @@ export const Posts = () => {
         <h2>Posts</h2>
       </div>
       <TableComponent
-        rowData={postsData}
+        rowData={data?.posts}
         columnDefs={columnDefs}
         height="600px"
         width="900px"
+      />
+      <CustomPagination
+        totalPages={data?.pagination?.total_pages}
+        currentPage={data?.pagination?.current_page}
+        onPageChange={onPageChange}
       />
     </div>
   );
