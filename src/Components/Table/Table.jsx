@@ -7,13 +7,13 @@ const TableComponent = ({
   rowData,
   columnDefs,
   defaultColDef = {
-    sortable: true,
-    filter: true,
     resizable: true,
     autoHeight: true,
+    sortable: true,
   },
   height = "800px",
   width = "1000px",
+  onSortChanged,
 }) => {
   return (
     <div
@@ -27,9 +27,9 @@ const TableComponent = ({
         rowData={rowData}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
-        animateRows={true}
         enableCellTextSelection={true}
         suppressScrollOnNewData={true}
+        onSortChanged={onSortChanged}
       />
     </div>
   );
