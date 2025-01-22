@@ -6,33 +6,21 @@ import { Posts } from "./Components/Posts/Posts";
 import { Navbar } from "./Components/Navbar/Navbar";
 import { Login } from "./Components/Login/Login";
 import "./App.css";
+import { ToastProvider } from "./Components/Toaster/Toaster";
+import { Route, Routes } from "react-router";
+import { Home } from "./Components/Home/Home";
 
 function App() {
   const [auth, setAuth] = useState(false);
-  const tabData = [
-    { label: "Profiles", content: <Profile /> },
-    { label: "Posts", content: <Posts /> },
-    { label: "Activities", content: <Activites /> },
-  ];
 
   return (
-    <>
+    <ToastProvider>
       <Navbar setAuth={setAuth} auth={auth} />
-      {auth ? (
-        <div
-          style={{
-            padding: "24px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Tabs tabs={tabData} />
-        </div>
-      ) : (
-        <Login setAuth={setAuth} />
-      )}
-    </>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </ToastProvider>
   );
 }
 

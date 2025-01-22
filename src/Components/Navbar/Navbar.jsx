@@ -8,9 +8,12 @@ import {
   Typography,
 } from "@mui/material";
 import { AccountCircle } from "@mui/icons-material";
+import { useNavigate } from "react-router";
 
-export const Navbar = ({ auth, setAuth }) => {
+export const Navbar = ({}) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const token = localStorage.getItem("authToken");
+  const navigate = useNavigate();
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -18,15 +21,16 @@ export const Navbar = ({ auth, setAuth }) => {
 
   const handleClose = () => {
     setAnchorEl(null);
-    setAuth((prev) => !prev);
+    localStorage.removeItem("authToken");
+    navigate("/login");
   };
   return (
     <AppBar position="sticky">
-      <Toolbar sx={{}}>
+      <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           LinkedIn Nurture
         </Typography>
-        {auth && (
+        {token && (
           <div>
             <IconButton
               size="large"
