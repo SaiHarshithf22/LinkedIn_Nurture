@@ -42,7 +42,7 @@ const StyledInput = styled(BaseInput)({
 
 function OTP({ separator, length, value, onChange }) {
   const inputRefs = React.useRef(
-    [...Array(length)].map(() => React.createRef())
+    [...Array(length)]?.map(() => React.createRef())
   );
 
   const focusInput = (targetIndex) => {
@@ -194,12 +194,10 @@ OTP.propTypes = {
   value: PropTypes.string.isRequired,
 };
 
-export default function OTPInput() {
-  const [otp, setOtp] = React.useState("");
-
+export default function OTPInput({ otp, setOtp }) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-      <OTP separator={<span></span>} value={otp} onChange={setOtp} length={5} />
+      <OTP separator={<span></span>} value={otp} onChange={setOtp} length={4} />
     </Box>
   );
 }
