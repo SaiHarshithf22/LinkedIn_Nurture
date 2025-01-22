@@ -19,10 +19,13 @@ export const Navbar = ({}) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleLogout = () => {
     localStorage.removeItem("authToken");
     navigate("/login");
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
   return (
     <AppBar position="sticky">
@@ -57,7 +60,11 @@ export const Navbar = ({}) => {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Logout</MenuItem>
+              <MenuItem onClick={handleClose}>
+                <div style={{ cursor: "pointer" }} onClick={handleLogout}>
+                  Logout
+                </div>
+              </MenuItem>
             </Menu>
           </div>
         )}
