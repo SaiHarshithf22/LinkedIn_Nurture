@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
 import RadioButtons from "../RadioButton/RadioButton";
+import { ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -67,17 +68,23 @@ export const Activites = () => {
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
   const [activityType, setActivityType] = useState("all");
+  const [perPage, setPerPage] = useState("20");
   const token = localStorage.getItem("authToken");
+  const [sortType, setSortType] = useState("");
 
   const getActivities = async (params) => {
+    const limit = params?.perPage ? params?.perPage : perPage;
     const pageNum = Number(params?.page);
     const validatedPage = !isNaN(pageNum) && pageNum > 0 ? pageNum : 1;
+    const sortOrder = params?.sortOrder ? params?.sortOrder : sortType;
 
     const selectedActivity = params?.activityType?.trim() || activityType;
 
     const queryParams = new URLSearchParams({
       page: validatedPage.toString(),
+      limit: limit,
       activity_type: selectedActivity === "all" ? "" : selectedActivity,
+      sort: sortOrder,
     });
 
     const apiUrl = `${baseURL}/linkedin/activities?${queryParams.toString()}`;
@@ -108,6 +115,19 @@ export const Activites = () => {
     getActivities({ page: value });
   };
 
+  const handleSort = () => {
+    setSortType((prev) => {
+      const value = prev === "asc" ? "desc" : "asc";
+      getActivities({ sortOrder: value });
+      return value;
+    });
+  };
+
+  const handlePerPageChange = (value) => {
+    getActivities({ perPage: value });
+    setPerPage(value);
+  };
+
   const handleActivityTypeChange = async (value) => {
     await getActivities({ activityType: value });
   };
@@ -125,7 +145,26 @@ export const Activites = () => {
           marginBottom: "20px",
         }}
       >
-        <h2>Activities</h2>
+        <div
+          onClick={handleSort}
+          style={{
+            color: "#00165a",
+            display: "flex",
+            alignItems: "center",
+            cursor: "pointer",
+          }}
+        >
+          <h2 style={{ color: "#00165a" }}>Activities</h2>
+          <div
+            style={{ color: "#00165a", display: "flex", alignItems: "center" }}
+          >
+            {sortType === "asc" ? (
+              <ArrowDropDown />
+            ) : sortType === "desc" ? (
+              <ArrowDropUp />
+            ) : null}
+          </div>
+        </div>
         <RadioButtons
           defaultValue="all"
           label="Activity Type"
@@ -148,7 +187,9 @@ export const Activites = () => {
       <CustomPagination
         totalPages={data?.pagination?.total_pages}
         currentPage={data?.pagination?.current_page}
+        onPerPageChange={handlePerPageChange}
         onPageChange={onPageChange}
+        perPage={perPage}
       />
     </div>
   );
