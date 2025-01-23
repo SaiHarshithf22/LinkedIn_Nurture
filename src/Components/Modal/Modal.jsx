@@ -8,6 +8,7 @@ const Modal = ({ title, content, modalRef }) => {
     <dialog
       ref={modalRef}
       style={{
+        backgroundColor: "whitesmoke",
         margin: "auto",
         width: "600px",
         border: "none",
@@ -15,10 +16,11 @@ const Modal = ({ title, content, modalRef }) => {
         padding: "20px",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         textAlign: "center",
+        color: "black",
       }}
     >
-      <h2 style={{ margin: "0 0 10px" }}>{title}</h2>
-      <div style={{ margin: "10px 0 20px" }}>{content}</div>
+      <h2 style={{ margin: "0 0 10px", color: "black" }}>{title}</h2>
+      <div style={{ margin: "10px 0 20px", color: "black" }}>{content}</div>
     </dialog>
   );
 };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
+import { ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -10,7 +11,6 @@ const columnDefs = [
     headerName: "Name",
     width: 200,
     flex: 1,
-    filter: "agTextColumnFilter",
     cellRenderer: (params) => (
       <a
         href={params.data.profile.profile}
@@ -48,10 +48,15 @@ export const Posts = () => {
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
+  const [perPage, setPerPage] = useState("20");
+  const [sortType, setSortType] = useState("");
   const token = localStorage.getItem("authToken");
 
-  const getPosts = async (page) => {
-    const apiUrl = `${baseURL}/linkedin/posts?page=${page ? page : 1}`;
+  const getPosts = async (params) => {
+    const page = params?.page ? params?.page : 1;
+    const limit = params?.perPage ? params?.perPage : perPage;
+    const sortOrder = params?.sortOrder ? params?.sortOrder : sortType;
+    const apiUrl = `${baseURL}/linkedin/posts?page=${page}&limit=${limit}&sort=${sortOrder}`;
 
     try {
       const response = await fetch(apiUrl, {
@@ -77,7 +82,20 @@ export const Posts = () => {
   };
 
   const onPageChange = (event, value) => {
-    getPosts(value);
+    getPosts({ page: value });
+  };
+
+  const handlePerPageChange = (value) => {
+    setPerPage(value);
+    getPosts({ perPage: value });
+  };
+
+  const handleSort = () => {
+    setSortType((prev) => {
+      const value = prev === "asc" ? "desc" : "asc";
+      getPosts({ sortOrder: value });
+      return value;
+    });
   };
 
   useEffect(() => {
@@ -93,7 +111,26 @@ export const Posts = () => {
           marginBottom: "20px",
         }}
       >
-        <h2>Posts</h2>
+        <div
+          onClick={handleSort}
+          style={{
+            color: "#00165a",
+            display: "flex",
+            alignItems: "center",
+            cursor: "pointer",
+          }}
+        >
+          <h2 style={{ color: "#00165a" }}>Posts</h2>
+          <div
+            style={{ color: "#00165a", display: "flex", alignItems: "center" }}
+          >
+            {sortType === "asc" ? (
+              <ArrowDropDown />
+            ) : sortType === "desc" ? (
+              <ArrowDropUp />
+            ) : null}
+          </div>
+        </div>
       </div>
       <TableComponent
         rowData={data?.posts}
@@ -105,6 +142,8 @@ export const Posts = () => {
         totalPages={data?.pagination?.total_pages}
         currentPage={data?.pagination?.current_page}
         onPageChange={onPageChange}
+        onPerPageChange={handlePerPageChange}
+        perPage={perPage}
       />
     </div>
   );

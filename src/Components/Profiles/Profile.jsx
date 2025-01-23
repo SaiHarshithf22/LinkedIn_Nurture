@@ -4,7 +4,6 @@ import Modal from "../Modal/Modal";
 import { CustomCheckbox } from "../CustomCheckbox/CustomCheckbox";
 import { ProfileCheckbox } from "../ProfileCheckbox/ProfileCheckbox";
 import { useToast } from "../Toaster/Toaster";
-import { Pagination } from "@mui/material";
 import { CustomPagination } from "../CustomPagination/Pagination";
 
 const columnDefs = [
@@ -16,7 +15,7 @@ const columnDefs = [
     cellRenderer: (params) => {
       return (
         <a href={params.data.profile} target="_blank" rel="noopener noreferrer">
-          {params.data.name}
+          {params.data.name || params?.data?.profile?.split("in/")?.[1]}
         </a>
       );
     },
@@ -75,7 +74,18 @@ const ModalContent = ({ modalRef }) => {
     cursor: "pointer",
   };
 
+  const clearForm = () => {
+    setProfileUrl("");
+    setScrapePosts(true);
+    setScrapeComments(true);
+    setScrapeReactions(true);
+  };
+
   const addNewProfile = async () => {
+    if (!profileUrl) {
+      showToast("Please add profile URL", "error");
+      return;
+    }
     const apiUrl = `${baseURL}/linkedin/profiles`;
 
     const requestBody = {
@@ -96,15 +106,19 @@ const ModalContent = ({ modalRef }) => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorRes = await response.json();
+        showToast(errorRes?.error, "error");
+        throw new Error(errorRes?.error);
       }
 
-      const data = await response.json(); // Parse the JSON response
+      const data = await response.json();
+      // Parse the JSON response
       if (data?.id) {
+        clearForm();
         modalRef.current.close();
+        showToast("Profile added successfully");
       }
     } catch (error) {
-      showToast("Error adding profiles", error);
       console.error("Error posting profiles:", error);
       return null;
     }
@@ -130,7 +144,14 @@ const ModalContent = ({ modalRef }) => {
         type="text"
         name="url"
         placeholder="Add Profile URL"
-        style={{ padding: "8px", fontSize: "18px" }}
+        style={{
+          color: "black",
+          padding: "8px",
+          fontSize: "18px",
+          backgroundColor: "white",
+          border: "1px solid black",
+          borderRadius: "8px",
+        }}
       />
       <CustomCheckbox
         label="Scrape Posts"
@@ -158,21 +179,17 @@ const ModalContent = ({ modalRef }) => {
           gap: "16px",
         }}
       >
-        <button
-          type="submit"
-          style={buttonStyle}
-          onClick={() => {
-            modalRef.current?.showModal();
-          }}
-        >
+        <button type="submit" style={buttonStyle}>
           Add Profile
         </button>
         <button
+          type="button"
           style={{
             ...buttonStyle,
             backgroundColor: "#dc3545",
           }}
           onClick={() => {
+            clearForm();
             modalRef.current.close();
           }}
         >
@@ -187,11 +204,16 @@ export const Profile = () => {
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
+  const [perPage, setPerPage] = useState("20");
   const modalRef = useRef(null);
   const token = localStorage.getItem("authToken");
 
-  const getProfiles = async (page) => {
-    const apiUrl = `${baseURL}/linkedin/profiles?page=${page ? page : 1}`;
+  const getProfiles = async (params) => {
+    const page = params?.page ? params?.page : 1;
+    const limit = params?.perPage ? params?.perPage : perPage;
+    const apiUrl = `${baseURL}/linkedin/profiles?page=${
+      page ? page : 1
+    }&limit=${limit}`;
 
     try {
       const response = await fetch(apiUrl, {
@@ -217,7 +239,12 @@ export const Profile = () => {
   };
 
   const onPageChange = (event, value) => {
-    getProfiles(value);
+    getProfiles({ page: value });
+  };
+
+  const handlePerPageChange = (value) => {
+    getProfiles({ perPage: value });
+    setPerPage(value);
   };
 
   useEffect(() => {
@@ -233,7 +260,7 @@ export const Profile = () => {
           marginBottom: "20px",
         }}
       >
-        <h2>Profiles</h2>
+        <h2 style={{ color: "#00165a" }}>Profiles</h2>
         <button
           style={{
             padding: "8px 16px",
@@ -247,7 +274,7 @@ export const Profile = () => {
             modalRef.current?.showModal();
           }}
         >
-          New Profile
+          Add Profile
         </button>
       </div>
       <TableComponent
@@ -261,6 +288,8 @@ export const Profile = () => {
         totalPages={data?.pagination?.total_pages}
         currentPage={data?.pagination?.current_page}
         onPageChange={onPageChange}
+        onPerPageChange={handlePerPageChange}
+        perPage={perPage}
       />
 
       <Modal

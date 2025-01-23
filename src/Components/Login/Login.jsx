@@ -85,7 +85,7 @@ export const Login = () => {
         justifyContent: "center",
       }}
     >
-      <h2>Login/Signup</h2>
+      <h2 style={{ color: "black" }}>Login/Signup</h2>
       <div
         style={{
           width: "300px",
