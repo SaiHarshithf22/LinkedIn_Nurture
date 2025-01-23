@@ -8,7 +8,7 @@ const Modal = ({ title, content, modalRef }) => {
     <dialog
       ref={modalRef}
       style={{
-        backgroundColor: "whitesmoke",
+        backgroundColor: "white",
         margin: "auto",
         width: "600px",
         border: "none",

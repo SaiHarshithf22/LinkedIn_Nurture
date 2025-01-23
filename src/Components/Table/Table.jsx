@@ -14,6 +14,7 @@ const TableComponent = ({
   height = "800px",
   width = "1000px",
   onSortChanged,
+  onGridReady,
 }) => {
   return (
     <div
@@ -30,6 +31,7 @@ const TableComponent = ({
         enableCellTextSelection={true}
         suppressScrollOnNewData={true}
         onSortChanged={onSortChanged}
+        onGridReady={onGridReady}
       />
     </div>
   );

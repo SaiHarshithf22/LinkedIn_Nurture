@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
 import RadioButtons from "../RadioButton/RadioButton";
-import { ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
+import { ArrowDropDown, ArrowDropUp, FilterAlt } from "@mui/icons-material";
+import { ProfileContext } from "../Home/Home";
+import Modal from "../Modal/Modal";
+import { useRef } from "react";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
-const columnDefs = [
+const columnDefs = (activityRef) => [
   {
-    filter: "agTextColumnFilter",
     field: "profile",
     headerName: "Profile",
     valueGetter: (params) => params.data.profile.name,
@@ -29,8 +31,24 @@ const columnDefs = [
   {
     field: "activity_type",
     headerName: "Activity Type",
-    filter: "agTextColumnFilter",
     flex: 1,
+    headerComponent: (params) => (
+      <div
+        onClick={() => activityRef.current?.showModal()}
+        style={{
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
+        }}
+      >
+        <span>{params.displayName}</span>
+        <span style={{ marginLeft: "5px", fontSize: "12px" }}>
+          <FilterAlt />
+        </span>
+      </div>
+    ),
   },
   {
     flex: 2,
@@ -71,12 +89,20 @@ export const Activites = () => {
   const [perPage, setPerPage] = useState("20");
   const token = localStorage.getItem("authToken");
   const [sortType, setSortType] = useState("");
+  const { profilesSelected } = useContext(ProfileContext);
+  const ids = profilesSelected?.map((profile) => profile.id);
+  const activityRef = useRef(null);
 
   const getActivities = async (params) => {
     const limit = params?.perPage ? params?.perPage : perPage;
     const pageNum = Number(params?.page);
     const validatedPage = !isNaN(pageNum) && pageNum > 0 ? pageNum : 1;
     const sortOrder = params?.sortOrder ? params?.sortOrder : sortType;
+    const profileIds = params?.profileIds || [];
+
+    const profileIdsQuery = profileIds.length
+      ? `&${profileIds.map((id) => `profile_ids[]=${id}`).join("&")}`
+      : "";
 
     const selectedActivity = params?.activityType?.trim() || activityType;
 
@@ -87,7 +113,7 @@ export const Activites = () => {
       sort: sortOrder,
     });
 
-    const apiUrl = `${baseURL}/linkedin/activities?${queryParams.toString()}`;
+    const apiUrl = `${baseURL}/linkedin/activities?${queryParams.toString()}${profileIdsQuery}`;
     try {
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -112,28 +138,33 @@ export const Activites = () => {
   };
 
   const onPageChange = (event, value) => {
-    getActivities({ page: value });
+    getActivities({ page: value, profileIds: ids });
   };
 
   const handleSort = () => {
     setSortType((prev) => {
       const value = prev === "asc" ? "desc" : "asc";
-      getActivities({ sortOrder: value });
+      getActivities({ sortOrder: value, profileIds: ids });
       return value;
     });
   };
 
   const handlePerPageChange = (value) => {
-    getActivities({ perPage: value });
+    getActivities({ perPage: value, profileIds: ids });
     setPerPage(value);
   };
 
   const handleActivityTypeChange = async (value) => {
-    await getActivities({ activityType: value });
+    await getActivities({ activityType: value, profileIds: ids });
+    activityRef?.current?.close();
   };
 
   useEffect(() => {
-    getActivities();
+    if (profilesSelected?.length > 0) {
+      getActivities({ profileIds: ids });
+    } else {
+      getActivities();
+    }
   }, []);
 
   return (
@@ -146,7 +177,7 @@ export const Activites = () => {
         }}
       >
         <div
-          onClick={handleSort}
+          // onClick={handleSort}
           style={{
             color: "#00165a",
             display: "flex",
@@ -155,7 +186,7 @@ export const Activites = () => {
           }}
         >
           <h2 style={{ color: "#00165a" }}>Activities</h2>
-          <div
+          {/* <div
             style={{ color: "#00165a", display: "flex", alignItems: "center" }}
           >
             {sortType === "asc" ? (
@@ -163,24 +194,12 @@ export const Activites = () => {
             ) : sortType === "desc" ? (
               <ArrowDropUp />
             ) : null}
-          </div>
+          </div> */}
         </div>
-        <RadioButtons
-          defaultValue="all"
-          label="Activity Type"
-          options={[
-            { label: "All", value: "all" },
-            { label: "Reaction", value: "reaction" },
-            { label: "Comment", value: "comment" },
-          ]}
-          onChange={handleActivityTypeChange}
-          value={activityType}
-          setValue={setActivityType}
-        />
       </div>
       <TableComponent
         rowData={data?.activities}
-        columnDefs={columnDefs}
+        columnDefs={columnDefs(activityRef)}
         height="600px"
         width="900px"
       />
@@ -190,6 +209,25 @@ export const Activites = () => {
         onPerPageChange={handlePerPageChange}
         onPageChange={onPageChange}
         perPage={perPage}
+      />
+      <Modal
+        modalRef={activityRef}
+        title={"Filter Activity Type"}
+        content={
+          <div>
+            <RadioButtons
+              defaultValue="all"
+              options={[
+                { label: "All", value: "all" },
+                { label: "Reaction", value: "reaction" },
+                { label: "Comment", value: "comment" },
+              ]}
+              onChange={handleActivityTypeChange}
+              value={activityType}
+              setValue={setActivityType}
+            />
+          </div>
+        }
       />
     </div>
   );

@@ -1,59 +1,13 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useContext } from "react";
 import TableComponent from "../Table/Table";
 import Modal from "../Modal/Modal";
-import { CustomCheckbox } from "../CustomCheckbox/CustomCheckbox";
-import { ProfileCheckbox } from "../ProfileCheckbox/ProfileCheckbox";
-import { useToast } from "../Toaster/Toaster";
 import { CustomPagination } from "../CustomPagination/Pagination";
-
-const columnDefs = [
-  {
-    field: "name",
-    headerName: "Name",
-    width: 200,
-    flex: 1,
-    cellRenderer: (params) => {
-      return (
-        <a href={params.data.profile} target="_blank" rel="noopener noreferrer">
-          {params.data.name || params?.data?.profile?.split("in/")?.[1]}
-        </a>
-      );
-    },
-  },
-  {
-    field: "position",
-    headerName: "Position",
-    width: 200,
-    flex: 1,
-  },
-  {
-    field: "is_scrape_posts",
-    headerName: "Scrape Posts",
-    width: 200,
-    flex: 1,
-    cellRenderer: (params) => {
-      return <ProfileCheckbox name="is_scrape_posts" data={params} />;
-    },
-  },
-  {
-    field: "is_scrape_comments",
-    headerName: "Scrape Comments",
-    width: 200,
-    flex: 1,
-    cellRenderer: (params) => (
-      <ProfileCheckbox name="is_scrape_comments" data={params} />
-    ),
-  },
-  {
-    field: "is_scrape_reactions",
-    headerName: "Scrape Reactions",
-    width: 200,
-    flex: 1,
-    cellRenderer: (params) => (
-      <ProfileCheckbox name="is_scrape_reactions" data={params} />
-    ),
-  },
-];
+import { columnDefs } from "./profileData";
+import { buttonStyle, FilterProfile } from "./ProfileModals";
+import { useToast } from "../Toaster/Toaster";
+import { CustomCheckbox } from "../CustomCheckbox/CustomCheckbox";
+import { ProfileContext } from "../Home/Home";
+import CSVUploader from "../CsvUpload/CsvUpload";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -65,14 +19,6 @@ const ModalContent = ({ modalRef }) => {
   const showToast = useToast();
 
   const token = localStorage.getItem("authToken");
-  const buttonStyle = {
-    padding: "5px 10px",
-    backgroundColor: "#007bff",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-  };
 
   const clearForm = () => {
     setProfileUrl("");
@@ -201,11 +147,14 @@ const ModalContent = ({ modalRef }) => {
 };
 
 export const Profile = () => {
+  const { profilesSelected, setProfileSelected } = useContext(ProfileContext);
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
+
   const [perPage, setPerPage] = useState("20");
   const modalRef = useRef(null);
+  const profileFilterRef = useRef(null);
   const token = localStorage.getItem("authToken");
 
   const getProfiles = async (params) => {
@@ -247,9 +196,27 @@ export const Profile = () => {
     setPerPage(value);
   };
 
+  const handleClearFilter = () => {
+    setProfileSelected([]);
+  };
+
   useEffect(() => {
-    getProfiles();
-  }, []);
+    if (profilesSelected?.length > 0) {
+      setData((prev) => {
+        return {
+          pagination: {
+            total: profilesSelected.length,
+            current_page: 1,
+            total_pages: 1,
+            per_page: 20,
+          },
+          profiles: profilesSelected,
+        };
+      });
+    } else {
+      getProfiles();
+    }
+  }, [profilesSelected]);
 
   return (
     <div>
@@ -261,25 +228,41 @@ export const Profile = () => {
         }}
       >
         <h2 style={{ color: "#00165a" }}>Profiles</h2>
-        <button
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-          onClick={() => {
-            modalRef.current?.showModal();
-          }}
-        >
-          Add Profile
-        </button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <CSVUploader />
+          <button
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "gray",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            onClick={handleClearFilter}
+          >
+            Clear Filter
+          </button>
+          <button
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              modalRef.current?.showModal();
+            }}
+          >
+            Add Profile
+          </button>
+        </div>
       </div>
       <TableComponent
         rowData={data?.profiles}
-        columnDefs={columnDefs}
+        columnDefs={columnDefs(profileFilterRef)}
         height="600px"
         width="900px"
       />
@@ -296,6 +279,19 @@ export const Profile = () => {
         modalRef={modalRef}
         title={"Add New Profile"}
         content={<ModalContent modalRef={modalRef} />}
+      />
+
+      <Modal
+        modalRef={profileFilterRef}
+        title={"Filter Profiles"}
+        content={
+          <FilterProfile
+            modalRef={profileFilterRef}
+            setData={setData}
+            setProfileSelected={setProfileSelected}
+            profiles={data?.profiles?.slice(0, 10) || []}
+          />
+        }
       />
     </div>
   );
