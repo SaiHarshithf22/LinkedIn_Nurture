@@ -15,7 +15,7 @@ const columnDefs = [
     cellRenderer: (params) => {
       return (
         <a href={params.data.profile} target="_blank" rel="noopener noreferrer">
-          {params.data.name}
+          {params.data.name || params?.data?.profile?.split("in/")?.[1]}
         </a>
       );
     },
@@ -74,7 +74,18 @@ const ModalContent = ({ modalRef }) => {
     cursor: "pointer",
   };
 
+  const clearForm = () => {
+    setProfileUrl("");
+    setScrapePosts(true);
+    setScrapeComments(true);
+    setScrapeReactions(true);
+  };
+
   const addNewProfile = async () => {
+    if (!profileUrl) {
+      showToast("Please add profile URL", "error");
+      return;
+    }
     const apiUrl = `${baseURL}/linkedin/profiles`;
 
     const requestBody = {
@@ -95,15 +106,19 @@ const ModalContent = ({ modalRef }) => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorRes = await response.json();
+        showToast(errorRes?.error, "error");
+        throw new Error(errorRes?.error);
       }
 
-      const data = await response.json(); // Parse the JSON response
+      const data = await response.json();
+      // Parse the JSON response
       if (data?.id) {
+        clearForm();
         modalRef.current.close();
+        showToast("Profile added successfully");
       }
     } catch (error) {
-      showToast("Error adding profiles", error);
       console.error("Error posting profiles:", error);
       return null;
     }
@@ -129,7 +144,14 @@ const ModalContent = ({ modalRef }) => {
         type="text"
         name="url"
         placeholder="Add Profile URL"
-        style={{ padding: "8px", fontSize: "18px" }}
+        style={{
+          color: "black",
+          padding: "8px",
+          fontSize: "18px",
+          backgroundColor: "white",
+          border: "1px solid black",
+          borderRadius: "8px",
+        }}
       />
       <CustomCheckbox
         label="Scrape Posts"
@@ -157,21 +179,17 @@ const ModalContent = ({ modalRef }) => {
           gap: "16px",
         }}
       >
-        <button
-          type="submit"
-          style={buttonStyle}
-          onClick={() => {
-            modalRef.current?.showModal();
-          }}
-        >
+        <button type="submit" style={buttonStyle}>
           Add Profile
         </button>
         <button
+          type="button"
           style={{
             ...buttonStyle,
             backgroundColor: "#dc3545",
           }}
           onClick={() => {
+            clearForm();
             modalRef.current.close();
           }}
         >
