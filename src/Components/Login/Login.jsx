@@ -57,6 +57,8 @@ export const Login = () => {
       });
 
       if (!response.ok) {
+        const res = await response.json();
+        showToast(res?.error, "error");
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
@@ -68,7 +70,6 @@ export const Login = () => {
       showToast(data?.message, "success");
     } catch (error) {
       console.error("Error getting OTP", error);
-      showToast("Error getting OTP", "error");
       return null;
     }
   };

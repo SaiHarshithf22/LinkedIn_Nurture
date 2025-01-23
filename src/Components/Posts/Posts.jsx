@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
-import { ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
-
-const baseURL = import.meta.env.VITE_BASE_URL;
+import { ProfileContext } from "../Home/Home";
 
 const columnDefs = [
   {
@@ -40,23 +38,38 @@ const columnDefs = [
     headerName: "Timestamp",
     width: 200,
     flex: 1,
-    valueGetter: (params) => new Date(params.data.timestamp).toLocaleString(), // Format timestamp
+    sortable: true,
+    unSortIcon: true,
+    valueGetter: (params) => new Date(params.data.timestamp).toLocaleString(),
   },
 ];
 
+const baseURL = import.meta.env.VITE_BASE_URL;
+
 export const Posts = () => {
+  const { profilesSelected } = useContext(ProfileContext);
+  const ids = profilesSelected?.map((profile) => profile.id);
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
   const [perPage, setPerPage] = useState("20");
-  const [sortType, setSortType] = useState("");
   const token = localStorage.getItem("authToken");
+  const gridApi = useRef(null);
 
   const getPosts = async (params) => {
     const page = params?.page ? params?.page : 1;
     const limit = params?.perPage ? params?.perPage : perPage;
-    const sortOrder = params?.sortOrder ? params?.sortOrder : sortType;
-    const apiUrl = `${baseURL}/linkedin/posts?page=${page}&limit=${limit}&sort=${sortOrder}`;
+    const sortOrder = params?.sortOrder;
+    const profileIds = params?.profileIds || [];
+
+    // Construct the query string for profile IDs
+    const profileIdsQuery = profileIds.length
+      ? `&${profileIds.map((id) => `profile_ids[]=${id}`).join("&")}`
+      : "";
+
+    const apiUrl = `${baseURL}/linkedin/posts?page=${page}&limit=${limit}${
+      sortOrder ? `&sort=${sortOrder}` : ""
+    }${profileIdsQuery}`;
 
     try {
       const response = await fetch(apiUrl, {
@@ -82,25 +95,42 @@ export const Posts = () => {
   };
 
   const onPageChange = (event, value) => {
-    getPosts({ page: value });
+    // Get the current sort model before changing page
+    const sortModel = gridApi.current
+      ?.getColumnState()
+      .find((col) => col.sort)?.sort;
+    getPosts({ page: value, sortOrder: sortModel, profileIds: ids });
   };
 
   const handlePerPageChange = (value) => {
+    // Get the current sort model before changing page size
+    const sortModel = gridApi.current
+      ?.getColumnState()
+      .find((col) => col.sort)?.sort;
     setPerPage(value);
-    getPosts({ perPage: value });
+    getPosts({ perPage: value, sortOrder: sortModel, profileIds: ids });
   };
 
-  const handleSort = () => {
-    setSortType((prev) => {
-      const value = prev === "asc" ? "desc" : "asc";
-      getPosts({ sortOrder: value });
-      return value;
-    });
+  const onGridReady = (params) => {
+    gridApi.current = params.api;
+  };
+
+  const onSortChanged = (event) => {
+    const sortModel = event.api.getColumnState().find((col) => col.sort);
+    if (sortModel?.sort) {
+      getPosts({ sortOrder: sortModel.sort, profileIds: ids });
+    } else {
+      getPosts({ profileIds: ids });
+    }
   };
 
   useEffect(() => {
-    getPosts();
-  }, []);
+    if (profilesSelected?.length > 0) {
+      getPosts({ profileIds: ids });
+    } else {
+      getPosts();
+    }
+  }, [profilesSelected]);
 
   return (
     <div>
@@ -111,32 +141,15 @@ export const Posts = () => {
           marginBottom: "20px",
         }}
       >
-        <div
-          onClick={handleSort}
-          style={{
-            color: "#00165a",
-            display: "flex",
-            alignItems: "center",
-            cursor: "pointer",
-          }}
-        >
-          <h2 style={{ color: "#00165a" }}>Posts</h2>
-          <div
-            style={{ color: "#00165a", display: "flex", alignItems: "center" }}
-          >
-            {sortType === "asc" ? (
-              <ArrowDropDown />
-            ) : sortType === "desc" ? (
-              <ArrowDropUp />
-            ) : null}
-          </div>
-        </div>
+        <h2 style={{ color: "#00165a" }}>Posts</h2>
       </div>
       <TableComponent
         rowData={data?.posts}
         columnDefs={columnDefs}
         height="600px"
         width="900px"
+        onSortChanged={onSortChanged}
+        onGridReady={onGridReady}
       />
       <CustomPagination
         totalPages={data?.pagination?.total_pages}
