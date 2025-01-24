@@ -6,6 +6,7 @@ import { ArrowDropDown, ArrowDropUp, FilterAlt } from "@mui/icons-material";
 import { ProfileContext } from "../Home/Home";
 import Modal from "../Modal/Modal";
 import { useRef } from "react";
+import { formatTimestamp } from "../../utils";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -51,7 +52,7 @@ const columnDefs = (activityRef) => [
     ),
   },
   {
-    flex: 2,
+    flex: 1.4,
     field: "url",
     headerName: "Post",
     cellRenderer: (params) => {
@@ -61,6 +62,7 @@ const columnDefs = (activityRef) => [
         </a>
       );
     },
+    tooltipValueGetter: (params) => params?.data?.post_content,
   },
   {
     flex: 1,
@@ -79,6 +81,16 @@ const columnDefs = (activityRef) => [
     headerName: "Commenter Comment",
     width: 300,
   },
+  {
+    flex: 1,
+    field: "createdAt",
+    headerName: "Created On",
+    width: 300,
+    sortable: true,
+    unSortIcon: true,
+    valueGetter: (params) => formatTimestamp(params.data.createdAt),
+    tooltipValueGetter: (params) => formatTimestamp(params.data.createdAt),
+  },
 ];
 
 export const Activites = () => {
@@ -88,16 +100,20 @@ export const Activites = () => {
   const [activityType, setActivityType] = useState("all");
   const [perPage, setPerPage] = useState("20");
   const token = localStorage.getItem("authToken");
-  const [sortType, setSortType] = useState("");
   const { profilesSelected } = useContext(ProfileContext);
   const ids = profilesSelected?.map((profile) => profile.id);
   const activityRef = useRef(null);
+  const gridApi = useRef(null);
+
+  const onGridReady = (params) => {
+    gridApi.current = params.api;
+  };
 
   const getActivities = async (params) => {
-    const limit = params?.perPage ? params?.perPage : perPage;
+    const limit = params?.perPage ?? perPage;
     const pageNum = Number(params?.page);
     const validatedPage = !isNaN(pageNum) && pageNum > 0 ? pageNum : 1;
-    const sortOrder = params?.sortOrder ? params?.sortOrder : sortType;
+    const sortOrder = params?.sortOrder || "";
     const profileIds = params?.profileIds || [];
 
     const profileIdsQuery = profileIds.length
@@ -106,14 +122,26 @@ export const Activites = () => {
 
     const selectedActivity = params?.activityType?.trim() || activityType;
 
-    const queryParams = new URLSearchParams({
+    // Create an object to store non-empty query parameters
+    const queryParamsObj = {
       page: validatedPage.toString(),
-      limit: limit,
-      activity_type: selectedActivity === "all" ? "" : selectedActivity,
-      sort: sortOrder,
-    });
+      limit: limit.toString(),
+    };
 
+    // Only add activity_type if it's not "all"
+    if (selectedActivity && selectedActivity !== "all") {
+      queryParamsObj.activity_type = selectedActivity;
+    }
+
+    // Only add sort and sort_by if sortOrder is provided
+    if (sortOrder) {
+      queryParamsObj.sort = sortOrder;
+      queryParamsObj.sort_by = "created_at";
+    }
+
+    const queryParams = new URLSearchParams(queryParamsObj);
     const apiUrl = `${baseURL}/linkedin/activities?${queryParams.toString()}${profileIdsQuery}`;
+
     try {
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -138,24 +166,36 @@ export const Activites = () => {
   };
 
   const onPageChange = (event, value) => {
-    getActivities({ page: value, profileIds: ids });
-  };
-
-  const handleSort = () => {
-    setSortType((prev) => {
-      const value = prev === "asc" ? "desc" : "asc";
-      getActivities({ sortOrder: value, profileIds: ids });
-      return value;
-    });
+    const sortModel = gridApi.current
+      ?.getColumnState()
+      .find((col) => col.sort)?.sort;
+    getActivities({ page: value, profileIds: ids, sortOrder: sortModel });
   };
 
   const handlePerPageChange = (value) => {
-    getActivities({ perPage: value, profileIds: ids });
+    const sortModel = gridApi.current
+      ?.getColumnState()
+      .find((col) => col.sort)?.sort;
+    getActivities({ perPage: value, profileIds: ids, sortOrder: sortModel });
     setPerPage(value);
   };
 
+  const onSortChanged = (event) => {
+    const sortModel = event.api.getColumnState().find((col) => col.sort);
+    if (sortModel?.sort) {
+      getActivities({ sortOrder: sortModel.sort, profileIds: ids });
+    } else {
+      getActivities({ profileIds: ids });
+    }
+  };
+
   const handleActivityTypeChange = async (value) => {
-    await getActivities({ activityType: value, profileIds: ids });
+    const sortModel = event.api.getColumnState().find((col) => col.sort);
+    await getActivities({
+      activityType: value,
+      profileIds: ids,
+      sortOrder: sortModel.sort,
+    });
     activityRef?.current?.close();
   };
 
@@ -177,7 +217,6 @@ export const Activites = () => {
         }}
       >
         <div
-          // onClick={handleSort}
           style={{
             color: "#00165a",
             display: "flex",
@@ -186,15 +225,6 @@ export const Activites = () => {
           }}
         >
           <h2 style={{ color: "#00165a" }}>Activities</h2>
-          {/* <div
-            style={{ color: "#00165a", display: "flex", alignItems: "center" }}
-          >
-            {sortType === "asc" ? (
-              <ArrowDropDown />
-            ) : sortType === "desc" ? (
-              <ArrowDropUp />
-            ) : null}
-          </div> */}
         </div>
       </div>
       <TableComponent
@@ -202,6 +232,8 @@ export const Activites = () => {
         columnDefs={columnDefs(activityRef)}
         height="600px"
         width="900px"
+        onSortChanged={onSortChanged}
+        onGridReady={onGridReady}
       />
       <CustomPagination
         totalPages={data?.pagination?.total_pages}

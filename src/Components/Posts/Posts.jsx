@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
 import { ProfileContext } from "../Home/Home";
+import { formatTimestamp } from "../../utils";
 
 const columnDefs = [
   {
@@ -32,6 +33,10 @@ const columnDefs = [
         </a>
       );
     },
+    tooltipValueGetter: (params) =>
+      params?.data?.text
+        ? params?.data?.text
+        : params?.value?.split("com/")?.[1],
   },
   {
     field: "timestamp",
@@ -40,7 +45,16 @@ const columnDefs = [
     flex: 1,
     sortable: true,
     unSortIcon: true,
-    valueGetter: (params) => new Date(params.data.timestamp).toLocaleString(),
+    valueGetter: (params) => formatTimestamp(params.data.timestamp),
+  },
+  {
+    field: "createdAt",
+    headerName: "Created On",
+    width: 200,
+    flex: 1,
+    sortable: true,
+    unSortIcon: true,
+    valueGetter: (params) => formatTimestamp(params.data.createdAt),
   },
 ];
 
@@ -60,6 +74,7 @@ export const Posts = () => {
     const page = params?.page ? params?.page : 1;
     const limit = params?.perPage ? params?.perPage : perPage;
     const sortOrder = params?.sortOrder;
+    const sortBy = params?.sortBy;
     const profileIds = params?.profileIds || [];
 
     // Construct the query string for profile IDs
@@ -68,7 +83,7 @@ export const Posts = () => {
       : "";
 
     const apiUrl = `${baseURL}/linkedin/posts?page=${page}&limit=${limit}${
-      sortOrder ? `&sort=${sortOrder}` : ""
+      sortOrder ? `&sort=${sortOrder}&sort_by=${sortBy}` : ""
     }${profileIdsQuery}`;
 
     try {
@@ -96,19 +111,38 @@ export const Posts = () => {
 
   const onPageChange = (event, value) => {
     // Get the current sort model before changing page
-    const sortModel = gridApi.current
-      ?.getColumnState()
-      .find((col) => col.sort)?.sort;
-    getPosts({ page: value, sortOrder: sortModel, profileIds: ids });
+    const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
+
+    const sortBy =
+      sortModel?.colId === "createdAt"
+        ? "created_at"
+        : sortModel?.colId === "timestamp"
+        ? "timestamp"
+        : "";
+    getPosts({
+      page: value,
+      sortOrder: sortModel?.sort,
+      profileIds: ids,
+      sortBy: sortBy,
+    });
   };
 
   const handlePerPageChange = (value) => {
     // Get the current sort model before changing page size
-    const sortModel = gridApi.current
-      ?.getColumnState()
-      .find((col) => col.sort)?.sort;
+    const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
+    const sortBy =
+      sortModel?.colId === "createdAt"
+        ? "created_at"
+        : sortModel?.colId === "timestamp"
+        ? "timestamp"
+        : "";
     setPerPage(value);
-    getPosts({ perPage: value, sortOrder: sortModel, profileIds: ids });
+    getPosts({
+      perPage: value,
+      sortOrder: sortModel?.sort,
+      profileIds: ids,
+      sortBy: sortBy,
+    });
   };
 
   const onGridReady = (params) => {
@@ -117,8 +151,14 @@ export const Posts = () => {
 
   const onSortChanged = (event) => {
     const sortModel = event.api.getColumnState().find((col) => col.sort);
+    const sortBy =
+      sortModel?.colId === "createdAt"
+        ? "created_at"
+        : sortModel?.colId === "timestamp"
+        ? "timestamp"
+        : "";
     if (sortModel?.sort) {
-      getPosts({ sortOrder: sortModel.sort, profileIds: ids });
+      getPosts({ sortOrder: sortModel.sort, profileIds: ids, sortBy: sortBy });
     } else {
       getPosts({ profileIds: ids });
     }

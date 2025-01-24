@@ -151,10 +151,9 @@ export const Profile = () => {
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
-
   const [perPage, setPerPage] = useState("20");
+  const [filterModal, setFilterModal] = useState(false);
   const modalRef = useRef(null);
-  const profileFilterRef = useRef(null);
   const token = localStorage.getItem("authToken");
 
   const getProfiles = async (params) => {
@@ -262,7 +261,7 @@ export const Profile = () => {
       </div>
       <TableComponent
         rowData={data?.profiles}
-        columnDefs={columnDefs(profileFilterRef)}
+        columnDefs={columnDefs(setFilterModal)}
         height="600px"
         width="900px"
       />
@@ -281,17 +280,10 @@ export const Profile = () => {
         content={<ModalContent modalRef={modalRef} />}
       />
 
-      <Modal
-        modalRef={profileFilterRef}
-        title={"Filter Profiles"}
-        content={
-          <FilterProfile
-            modalRef={profileFilterRef}
-            setData={setData}
-            setProfileSelected={setProfileSelected}
-            profiles={data?.profiles?.slice(0, 10) || []}
-          />
-        }
+      <FilterProfile
+        filterModal={filterModal}
+        setFilterModal={setFilterModal}
+        setProfileSelected={setProfileSelected}
       />
     </div>
   );

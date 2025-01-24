@@ -1,9 +1,4 @@
 const Modal = ({ title, content, modalRef }) => {
-  const closeModal = () => {
-    modalRef.current?.close();
-    if (onClose) onClose();
-  };
-
   return (
     <dialog
       ref={modalRef}
