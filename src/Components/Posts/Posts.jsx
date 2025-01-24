@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
 import { ProfileContext } from "../Home/Home";
+import { formatTimestamp } from "../../utils";
 
 const columnDefs = [
   {
@@ -32,6 +33,10 @@ const columnDefs = [
         </a>
       );
     },
+    tooltipValueGetter: (params) =>
+      params?.data?.text
+        ? params?.data?.text
+        : params?.value?.split("com/")?.[1],
   },
   {
     field: "timestamp",
@@ -40,7 +45,7 @@ const columnDefs = [
     flex: 1,
     sortable: true,
     unSortIcon: true,
-    valueGetter: (params) => new Date(params.data.timestamp).toLocaleString(),
+    valueGetter: (params) => formatTimestamp(params.data.timestamp),
   },
 ];
 
