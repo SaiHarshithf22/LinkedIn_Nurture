@@ -84,7 +84,7 @@ const columnDefs = (activityRef) => [
   {
     flex: 1,
     field: "createdAt",
-    headerName: "Timestamp",
+    headerName: "Created On",
     width: 300,
     sortable: true,
     unSortIcon: true,
@@ -110,7 +110,7 @@ export const Activites = () => {
   };
 
   const getActivities = async (params) => {
-    const limit = params?.perPage ? params?.perPage : perPage;
+    const limit = params?.perPage ?? perPage;
     const pageNum = Number(params?.page);
     const validatedPage = !isNaN(pageNum) && pageNum > 0 ? pageNum : 1;
     const sortOrder = params?.sortOrder || "";
@@ -122,14 +122,26 @@ export const Activites = () => {
 
     const selectedActivity = params?.activityType?.trim() || activityType;
 
-    const queryParams = new URLSearchParams({
+    // Create an object to store non-empty query parameters
+    const queryParamsObj = {
       page: validatedPage.toString(),
-      limit: limit,
-      activity_type: selectedActivity === "all" ? "" : selectedActivity,
-      sort: sortOrder,
-    });
+      limit: limit.toString(),
+    };
 
+    // Only add activity_type if it's not "all"
+    if (selectedActivity && selectedActivity !== "all") {
+      queryParamsObj.activity_type = selectedActivity;
+    }
+
+    // Only add sort and sort_by if sortOrder is provided
+    if (sortOrder) {
+      queryParamsObj.sort = sortOrder;
+      queryParamsObj.sort_by = "created_at";
+    }
+
+    const queryParams = new URLSearchParams(queryParamsObj);
     const apiUrl = `${baseURL}/linkedin/activities?${queryParams.toString()}${profileIdsQuery}`;
+
     try {
       const response = await fetch(apiUrl, {
         method: "GET",
