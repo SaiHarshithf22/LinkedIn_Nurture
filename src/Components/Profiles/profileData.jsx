@@ -1,7 +1,7 @@
 import { FilterAlt } from "@mui/icons-material";
 import { ProfileCheckbox } from "../ProfileCheckbox/ProfileCheckbox";
 
-export const columnDefs = (nameHeaderModalRef) => [
+export const columnDefs = (setFilterModal) => [
   {
     field: "name",
     headerName: "Name",
@@ -16,7 +16,7 @@ export const columnDefs = (nameHeaderModalRef) => [
     },
     headerComponent: (params) => (
       <div
-        onClick={() => nameHeaderModalRef.current?.showModal()}
+        onClick={() => setFilterModal(true)}
         style={{
           cursor: "pointer",
           display: "flex",

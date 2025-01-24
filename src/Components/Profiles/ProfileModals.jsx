@@ -1,6 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "../Toaster/Toaster";
-import { Autocomplete, Box, Checkbox, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  TextField,
+  Checkbox,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -15,14 +24,17 @@ export const buttonStyle = {
 
 const token = localStorage.getItem("authToken");
 
-export const FilterProfile = ({ modalRef, setProfileSelected }) => {
+export const FilterProfile = ({
+  filterModal,
+  setFilterModal,
+  setProfileSelected,
+}) => {
   const [query, setQuery] = useState("");
   const [filteredProfiles, setFilteredProfiles] = useState([]);
-
   const [selectedProfiles, setSelectedProfiles] = useState([]);
 
-  const getProfiles = async (query) => {
-    const apiUrl = `${baseURL}/linkedin/profiles?query=${query}`;
+  const getProfiles = async (searchQuery) => {
+    const apiUrl = `${baseURL}/linkedin/profiles?query=${searchQuery}`;
     try {
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -37,17 +49,16 @@ export const FilterProfile = ({ modalRef, setProfileSelected }) => {
       }
 
       const data = await response.json();
-      if (data) {
-        setFilteredProfiles(data?.profiles);
+      if (data?.profiles?.length) {
+        setFilteredProfiles(data.profiles);
       }
     } catch (error) {
       console.error("Error fetching profiles:", error);
-      return null;
     }
   };
 
   const handleFilterClose = () => {
-    modalRef.current.close();
+    setFilterModal(false);
   };
 
   const handleSelectProfiles = () => {
@@ -55,99 +66,76 @@ export const FilterProfile = ({ modalRef, setProfileSelected }) => {
     handleFilterClose();
   };
 
-  const handleQuery = (e) => {
-    setQuery(e.target.value);
-    getProfiles(e.target.value);
+  const handleQueryChange = (e) => {
+    const newQuery = e.target.value;
+    setQuery(newQuery);
+    getProfiles(newQuery);
   };
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "250px",
-        color: "black",
-      }}
-    >
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
 
-          display: "flex",
-          flexDirection: "column",
-          gap: "16px",
-        }}
-      >
+  useEffect(() => {
+    getProfiles("");
+  }, []);
+
+  return (
+    <Dialog
+      disableEscapeKeyDown
+      open={filterModal}
+      onClose={handleFilterClose}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle>Select Profiles</DialogTitle>
+      <DialogContent>
         <Autocomplete
           multiple
-          disablePortal
-          limitTags={2}
+          limitTags={3}
           options={filteredProfiles}
           value={selectedProfiles}
           onChange={(event, newValue) => {
             setSelectedProfiles(newValue);
           }}
-          slotProps={{
-            popper: {
-              sx: {
-                zIndex: (theme) => {
-                  return theme.zIndex.modal + 100;
-                },
-              },
-            },
-          }}
-          sx={{
-            width: 550,
-            margin: "auto",
-          }}
-          disableCloseOnSelect
-          getOptionLabel={(option) => option?.name}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          getOptionLabel={(option) =>
+            option?.name || option?.profile?.split("in/")?.[1]
+          }
           renderOption={(props, option, { selected }) => {
             const { key, ...optionProps } = props;
             return (
               <li key={key} {...optionProps}>
                 <Checkbox style={{ marginRight: 8 }} checked={selected} />
-                {option.name}
+                {option.name || option?.profile?.split("in/")?.[1]}
               </li>
             );
           }}
           renderInput={(params) => (
             <TextField
-              value={query}
-              onChange={handleQuery}
               {...params}
-              label="Search name"
+              label="Search Profiles"
+              variant="outlined"
+              value={query}
+              onChange={handleQueryChange}
+              placeholder="Type to search profiles"
             />
           )}
+          sx={{
+            width: "100%",
+            marginTop: 2,
+          }}
+          disableCloseOnSelect
         />
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "16px",
-          paddingTop: "12px",
-          borderTop: "1px solid #eee",
-        }}
-      >
-        <button
-          type="submit"
-          style={buttonStyle}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleFilterClose} color="error" variant="outlined">
+          Cancel
+        </Button>
+        <Button
           onClick={handleSelectProfiles}
+          color="primary"
+          variant="contained"
         >
           Select Profiles
-        </button>
-        <button
-          type="button"
-          style={{
-            ...buttonStyle,
-            backgroundColor: "#dc3545",
-          }}
-          onClick={handleFilterClose}
-        >
-          Close
-        </button>
-      </div>
-    </div>
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
