@@ -190,11 +190,11 @@ export const Activites = () => {
   };
 
   const handleActivityTypeChange = async (value) => {
-    const sortModel = event.api.getColumnState().find((col) => col.sort);
+    const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
     await getActivities({
       activityType: value,
       profileIds: ids,
-      sortOrder: sortModel.sort,
+      sortOrder: sortModel?.sort,
     });
     activityRef?.current?.close();
   };
