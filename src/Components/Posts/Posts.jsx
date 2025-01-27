@@ -60,13 +60,13 @@ const columnDefs = [
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
-export const Posts = () => {
+export const Posts = ({ perPage, setPerPage }) => {
   const { profilesSelected } = useContext(ProfileContext);
   const ids = profilesSelected?.map((profile) => profile.id);
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
-  const [perPage, setPerPage] = useState("20");
+
   const token = localStorage.getItem("authToken");
   const gridApi = useRef(null);
 

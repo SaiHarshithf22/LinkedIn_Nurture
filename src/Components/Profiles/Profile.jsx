@@ -146,12 +146,12 @@ const ModalContent = ({ modalRef }) => {
   );
 };
 
-export const Profile = () => {
+export const Profile = ({ perPage, setPerPage }) => {
   const { profilesSelected, setProfileSelected } = useContext(ProfileContext);
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
-  const [perPage, setPerPage] = useState("20");
+
   const [filterModal, setFilterModal] = useState(false);
   const modalRef = useRef(null);
   const token = localStorage.getItem("authToken");
