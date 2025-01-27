@@ -10,7 +10,6 @@ const Tabs = ({ tabs }) => {
       fontFamily: "Arial, sans-serif",
     },
     header: {
-      width: "1100px",
       display: "flex",
       borderBottom: "2px solid #ddd",
       justifyContent: "center",

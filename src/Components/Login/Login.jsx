@@ -3,6 +3,7 @@ import { Button, TextField } from "@mui/material";
 import OTPInput from "../OTPInput/OTPInput";
 import { useToast } from "../Toaster/Toaster";
 import { useNavigate } from "react-router";
+import { useLayoutEffect } from "react";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -12,6 +13,7 @@ export const Login = () => {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
   const showToast = useToast();
+  const token = localStorage.getItem("authToken");
 
   const getOtp = async () => {
     const apiUrl = `${baseURL}/linkedin/users/otp`;
@@ -63,6 +65,7 @@ export const Login = () => {
       }
 
       const data = await response.json();
+      localStorage.removeItem("authToken");
       localStorage.setItem("authToken", data.token);
       if (data.token) {
         navigate("/");
@@ -73,6 +76,12 @@ export const Login = () => {
       return null;
     }
   };
+
+  useLayoutEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, []);
 
   return (
     <div

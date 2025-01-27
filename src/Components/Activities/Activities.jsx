@@ -74,12 +74,19 @@ const columnDefs = (activityRef) => [
       </a>
     ),
   },
-  { flex: 1, field: "user_comment", headerName: "User Comment", width: 300 },
+  {
+    flex: 1,
+    field: "user_comment",
+    headerName: "User Comment",
+    width: 300,
+    tooltipValueGetter: (params) => params?.value,
+  },
   {
     flex: 1,
     field: "commenter_comment",
     headerName: "Commenter Comment",
     width: 300,
+    tooltipValueGetter: (params) => params?.value,
   },
   {
     flex: 1,
@@ -93,12 +100,11 @@ const columnDefs = (activityRef) => [
   },
 ];
 
-export const Activites = () => {
+export const Activites = ({ perPage, setPerPage }) => {
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
   const [activityType, setActivityType] = useState("all");
-  const [perPage, setPerPage] = useState("20");
   const token = localStorage.getItem("authToken");
   const { profilesSelected } = useContext(ProfileContext);
   const ids = profilesSelected?.map((profile) => profile.id);

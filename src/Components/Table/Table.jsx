@@ -11,16 +11,13 @@ const TableComponent = ({
     autoHeight: true,
     sortable: true,
   },
-  height = "800px",
-  width = "1000px",
   onSortChanged,
   onGridReady,
 }) => {
   return (
     <div
       style={{
-        height: height,
-        minWidth: width,
+        width: "100%",
       }}
     >
       <AgGridReact
@@ -32,6 +29,7 @@ const TableComponent = ({
         suppressScrollOnNewData={true}
         onSortChanged={onSortChanged}
         onGridReady={onGridReady}
+        domLayout="autoHeight"
       />
     </div>
   );
