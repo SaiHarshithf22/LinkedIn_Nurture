@@ -1,25 +1,13 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
-import { ProfileContext } from "../Home/Home";
 import { formatTimestamp } from "../../utils";
 
-const columnDefs = [
-  {
-    field: "profile.name",
-    headerName: "Name",
-    width: 200,
-    flex: 1,
-    cellRenderer: (params) => (
-      <a
-        href={params.data.profile.profile}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {params.data.profile.name}
-      </a>
-    ),
-  },
+const token = localStorage.getItem("authToken");
+
+const baseURL = import.meta.env.VITE_BASE_URL;
+
+const postColumnDefs = [
   {
     field: "url",
     headerName: "Post",
@@ -58,16 +46,8 @@ const columnDefs = [
   },
 ];
 
-const baseURL = import.meta.env.VITE_BASE_URL;
-
-export const Posts = ({ perPage, setPerPage }) => {
-  const { profilesSelected } = useContext(ProfileContext);
-  const ids = profilesSelected?.map((profile) => profile.id);
-  const [data, setData] = useState({
-    pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
-  });
-
-  const token = localStorage.getItem("authToken");
+export const UserPost = ({ id, perPage, setPerPage }) => {
+  const [postsData, setPostsData] = useState([]);
   const gridApi = useRef(null);
 
   const getPosts = async (params) => {
@@ -75,16 +55,11 @@ export const Posts = ({ perPage, setPerPage }) => {
     const limit = params?.perPage ? params?.perPage : perPage;
     const sortOrder = params?.sortOrder;
     const sortBy = params?.sortBy;
-    const profileIds = params?.profileIds || [];
-
-    // Construct the query string for profile IDs
-    const profileIdsQuery = profileIds.length
-      ? `&profile_ids=${profileIds.join(",")}`
-      : "";
+    const profileId = params?.profileId;
 
     const apiUrl = `${baseURL}/linkedin/posts?page=${page}&limit=${limit}${
       sortOrder ? `&sort=${sortOrder}&sort_by=${sortBy}` : ""
-    }${profileIdsQuery}`;
+    }&profile_ids=${profileId}`;
 
     try {
       const response = await fetch(apiUrl, {
@@ -101,30 +76,12 @@ export const Posts = ({ perPage, setPerPage }) => {
 
       const data = await response.json();
       if (data) {
-        setData(data);
+        setPostsData(data);
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
       return null;
     }
-  };
-
-  const onPageChange = (event, value) => {
-    // Get the current sort model before changing page
-    const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
-
-    const sortBy =
-      sortModel?.colId === "createdAt"
-        ? "created_at"
-        : sortModel?.colId === "timestamp"
-        ? "timestamp"
-        : "";
-    getPosts({
-      page: value,
-      sortOrder: sortModel?.sort,
-      profileIds: ids,
-      sortBy: sortBy,
-    });
   };
 
   const handlePerPageChange = (value) => {
@@ -140,7 +97,24 @@ export const Posts = ({ perPage, setPerPage }) => {
     getPosts({
       perPage: value,
       sortOrder: sortModel?.sort,
-      profileIds: ids,
+      profileId: id,
+      sortBy: sortBy,
+    });
+  };
+
+  const onPostsPageChange = (event, value) => {
+    const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
+
+    const sortBy =
+      sortModel?.colId === "createdAt"
+        ? "created_at"
+        : sortModel?.colId === "timestamp"
+        ? "timestamp"
+        : "";
+    getPosts({
+      page: value,
+      sortOrder: sortModel?.sort,
+      profileId: id,
       sortBy: sortBy,
     });
   };
@@ -158,19 +132,21 @@ export const Posts = ({ perPage, setPerPage }) => {
         ? "timestamp"
         : "";
     if (sortModel?.sort) {
-      getPosts({ sortOrder: sortModel.sort, profileIds: ids, sortBy: sortBy });
+      getPosts({
+        sortOrder: sortModel.sort,
+        profileId: id,
+        sortBy: sortBy,
+      });
     } else {
-      getPosts({ profileIds: ids });
+      getPosts({ profileId: id });
     }
   };
 
   useEffect(() => {
-    if (profilesSelected?.length > 0) {
-      getPosts({ profileIds: ids });
-    } else {
-      getPosts();
+    if (id) {
+      getPosts({ profileId: id });
     }
-  }, [profilesSelected]);
+  }, [id]);
 
   return (
     <div>
@@ -184,15 +160,15 @@ export const Posts = ({ perPage, setPerPage }) => {
         <h2 style={{ color: "#00165a" }}>Posts</h2>
       </div>
       <TableComponent
-        rowData={data?.posts}
-        columnDefs={columnDefs}
+        rowData={postsData?.posts}
+        columnDefs={postColumnDefs}
         onSortChanged={onSortChanged}
         onGridReady={onGridReady}
       />
       <CustomPagination
-        totalPages={data?.pagination?.total_pages}
-        currentPage={data?.pagination?.current_page}
-        onPageChange={onPageChange}
+        totalPages={postsData?.pagination?.total_pages}
+        currentPage={postsData?.pagination?.current_page}
+        onPageChange={onPostsPageChange}
         onPerPageChange={handlePerPageChange}
         perPage={perPage}
       />

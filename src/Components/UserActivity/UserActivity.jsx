@@ -1,34 +1,12 @@
-import { useContext, useEffect, useState } from "react";
-import TableComponent from "../Table/Table";
-import { CustomPagination } from "../CustomPagination/Pagination";
-import RadioButtons from "../RadioButton/RadioButton";
-import { ArrowDropDown, ArrowDropUp, FilterAlt } from "@mui/icons-material";
-import { ProfileContext } from "../Home/Home";
+import { FilterAlt } from "@mui/icons-material";
+import { useEffect, useRef, useState } from "react";
 import Modal from "../Modal/Modal";
-import { useRef } from "react";
+import RadioButtons from "../RadioButton/RadioButton";
+import { CustomPagination } from "../CustomPagination/Pagination";
+import TableComponent from "../Table/Table";
 import { formatTimestamp } from "../../utils";
 
-const baseURL = import.meta.env.VITE_BASE_URL;
-
-const columnDefs = (activityRef) => [
-  {
-    field: "profile",
-    headerName: "Profile",
-    valueGetter: (params) => params.data.profile.name,
-    cellRenderer: (params) => {
-      return (
-        <a
-          href={params.data.profile.profile}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {params.data.profile.name}
-        </a>
-      );
-    },
-    width: 200,
-    flex: 1,
-  },
+const activityColumnDefs = (activityRef) => [
   {
     field: "activity_type",
     headerName: "Activity Type",
@@ -100,15 +78,14 @@ const columnDefs = (activityRef) => [
   },
 ];
 
-export const Activites = ({ perPage, setPerPage }) => {
-  const [data, setData] = useState({
-    pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
-  });
-  const [activityType, setActivityType] = useState("all");
-  const token = localStorage.getItem("authToken");
-  const { profilesSelected } = useContext(ProfileContext);
-  const ids = profilesSelected?.map((profile) => profile.id);
+const baseURL = import.meta.env.VITE_BASE_URL;
+const token = localStorage.getItem("authToken");
+
+export const UserActivity = ({ id, perPage, setPerPage }) => {
+  const [activitiesData, setActivitiesData] = useState([]);
   const activityRef = useRef(null);
+  const [activityType, setActivityType] = useState("all");
+
   const gridApi = useRef(null);
 
   const onGridReady = (params) => {
@@ -120,11 +97,7 @@ export const Activites = ({ perPage, setPerPage }) => {
     const pageNum = Number(params?.page);
     const validatedPage = !isNaN(pageNum) && pageNum > 0 ? pageNum : 1;
     const sortOrder = params?.sortOrder || "";
-    const profileIds = params?.profileIds || [];
-
-    const profileIdsQuery = profileIds.length
-      ? `&profile_ids=${profileIds.join(",")}`
-      : "";
+    const profileId = params?.profileId;
 
     const selectedActivity = params?.activityType?.trim() || activityType;
 
@@ -146,7 +119,7 @@ export const Activites = ({ perPage, setPerPage }) => {
     }
 
     const queryParams = new URLSearchParams(queryParamsObj);
-    const apiUrl = `${baseURL}/linkedin/activities?${queryParams.toString()}${profileIdsQuery}`;
+    const apiUrl = `${baseURL}/linkedin/activities?${queryParams.toString()}&profile_ids=${profileId}`;
 
     try {
       const response = await fetch(apiUrl, {
@@ -163,7 +136,7 @@ export const Activites = ({ perPage, setPerPage }) => {
 
       const data = await response.json();
       if (data) {
-        setData(data);
+        setActivitiesData(data);
       }
     } catch (error) {
       console.error("Error fetching activities:", error);
@@ -171,48 +144,50 @@ export const Activites = ({ perPage, setPerPage }) => {
     }
   };
 
-  const onPageChange = (event, value) => {
-    const sortModel = gridApi.current
-      ?.getColumnState()
-      .find((col) => col.sort)?.sort;
-    getActivities({ page: value, profileIds: ids, sortOrder: sortModel });
-  };
-
-  const handlePerPageChange = (value) => {
-    const sortModel = gridApi.current
-      ?.getColumnState()
-      .find((col) => col.sort)?.sort;
-    getActivities({ perPage: value, profileIds: ids, sortOrder: sortModel });
-    setPerPage(value);
-  };
-
-  const onSortChanged = (event) => {
-    const sortModel = event.api.getColumnState().find((col) => col.sort);
-    if (sortModel?.sort) {
-      getActivities({ sortOrder: sortModel.sort, profileIds: ids });
-    } else {
-      getActivities({ profileIds: ids });
-    }
-  };
-
   const handleActivityTypeChange = async (value) => {
     const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
     await getActivities({
       activityType: value,
-      profileIds: ids,
+      profileId: id,
       sortOrder: sortModel?.sort,
     });
     activityRef?.current?.close();
   };
 
-  useEffect(() => {
-    if (profilesSelected?.length > 0) {
-      getActivities({ profileIds: ids });
-    } else {
-      getActivities();
-    }
-  }, []);
+  const handlePerPageChange = (value) => {
+    // Get the current sort model before changing page size
+    const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
+    const sortBy =
+      sortModel?.colId === "createdAt"
+        ? "created_at"
+        : sortModel?.colId === "timestamp"
+        ? "timestamp"
+        : "";
+    setPerPage(value);
+    getActivities({ perPage: value, profileIds: ids, sortOrder: sortModel });
+  };
 
+  const onSortChanged = (event) => {
+    const sortModel = event.api.getColumnState().find((col) => col.sort);
+    if (sortModel?.sort) {
+      getActivities({ sortOrder: sortModel.sort, profileId: id });
+    } else {
+      getActivities({ profileId: id });
+    }
+  };
+
+  const onActivitiesPageChange = (event, value) => {
+    const sortModel = gridApi.current
+      ?.getColumnState()
+      .find((col) => col.sort)?.sort;
+    getActivities({ page: value, profileId: id, sortOrder: sortModel });
+  };
+
+  useEffect(() => {
+    if (id) {
+      getActivities({ profileId: id });
+    }
+  }, [id]);
   return (
     <div>
       <div
@@ -234,16 +209,16 @@ export const Activites = ({ perPage, setPerPage }) => {
         </div>
       </div>
       <TableComponent
-        rowData={data?.activities}
-        columnDefs={columnDefs(activityRef)}
+        rowData={activitiesData?.activities}
+        columnDefs={activityColumnDefs(activityRef)}
         onSortChanged={onSortChanged}
         onGridReady={onGridReady}
       />
       <CustomPagination
-        totalPages={data?.pagination?.total_pages}
-        currentPage={data?.pagination?.current_page}
+        totalPages={activitiesData?.pagination?.total_pages}
+        currentPage={activitiesData?.pagination?.current_page}
         onPerPageChange={handlePerPageChange}
-        onPageChange={onPageChange}
+        onPageChange={onActivitiesPageChange}
         perPage={perPage}
       />
       <Modal
