@@ -40,7 +40,7 @@ const columnDefs = [
   },
   {
     field: "timestamp",
-    headerName: "Timestamp",
+    headerName: "Post created at",
     width: 200,
     flex: 1,
     sortable: true,
@@ -49,7 +49,7 @@ const columnDefs = [
   },
   {
     field: "createdAt",
-    headerName: "Created On",
+    headerName: "Post synced at",
     width: 200,
     flex: 1,
     sortable: true,
@@ -79,7 +79,7 @@ export const Posts = ({ perPage, setPerPage }) => {
 
     // Construct the query string for profile IDs
     const profileIdsQuery = profileIds.length
-      ? `&${profileIds.map((id) => `profile_ids[]=${id}`).join("&")}`
+      ? `&profile_ids=${profileIds.join(",")}`
       : "";
 
     const apiUrl = `${baseURL}/linkedin/posts?page=${page}&limit=${limit}${
@@ -186,8 +186,6 @@ export const Posts = ({ perPage, setPerPage }) => {
       <TableComponent
         rowData={data?.posts}
         columnDefs={columnDefs}
-        height="600px"
-        width="900px"
         onSortChanged={onSortChanged}
         onGridReady={onGridReady}
       />

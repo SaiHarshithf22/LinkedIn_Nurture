@@ -91,7 +91,7 @@ const columnDefs = (activityRef) => [
   {
     flex: 1,
     field: "createdAt",
-    headerName: "Created On",
+    headerName: "Post synced at",
     width: 300,
     sortable: true,
     unSortIcon: true,
@@ -123,7 +123,7 @@ export const Activites = ({ perPage, setPerPage }) => {
     const profileIds = params?.profileIds || [];
 
     const profileIdsQuery = profileIds.length
-      ? `&${profileIds.map((id) => `profile_ids[]=${id}`).join("&")}`
+      ? `&profile_ids=${profileIds.join(",")}`
       : "";
 
     const selectedActivity = params?.activityType?.trim() || activityType;
@@ -236,8 +236,6 @@ export const Activites = ({ perPage, setPerPage }) => {
       <TableComponent
         rowData={data?.activities}
         columnDefs={columnDefs(activityRef)}
-        height="600px"
-        width="900px"
         onSortChanged={onSortChanged}
         onGridReady={onGridReady}
       />
