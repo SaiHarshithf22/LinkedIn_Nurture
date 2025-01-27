@@ -14,7 +14,12 @@ const postColumnDefs = [
     flex: 2,
     cellRenderer: (params) => {
       return (
-        <a href={params.value} target="_blank" rel="noopener noreferrer">
+        <a
+          style={{ color: "#0056b3" }}
+          href={params.value}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {params?.data?.text
             ? params?.data?.text
             : params?.value?.split("com/")?.[1]}
@@ -47,7 +52,9 @@ const postColumnDefs = [
 ];
 
 export const UserPost = ({ id, perPage, setPerPage }) => {
-  const [postsData, setPostsData] = useState([]);
+  const [postsData, setPostsData] = useState({
+    pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
+  });
   const gridApi = useRef(null);
 
   const getPosts = async (params) => {

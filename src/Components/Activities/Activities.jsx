@@ -1,11 +1,12 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
 import RadioButtons from "../RadioButton/RadioButton";
-import { ArrowDropDown, ArrowDropUp, FilterAlt } from "@mui/icons-material";
+import { FilterAlt } from "@mui/icons-material";
 import { ProfileContext } from "../Home/Home";
 import Modal from "../Modal/Modal";
-import { useRef } from "react";
+
 import { formatTimestamp } from "../../utils";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
@@ -17,13 +18,29 @@ const columnDefs = (activityRef) => [
     valueGetter: (params) => params.data.profile.name,
     cellRenderer: (params) => {
       return (
-        <a
-          href={params.data.profile.profile}
-          target="_blank"
-          rel="noopener noreferrer"
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+          }}
         >
-          {params.data.profile.name}
-        </a>
+          <a
+            style={{ display: "flex" }}
+            href={params.data.profile.profile}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <LinkedInIcon />
+          </a>
+          <a
+            style={{ color: "black" }}
+            href={`profile/${params.data?.profile?.id}?name=${params?.data?.profile?.name}&profile=${params?.data?.profile?.profile}&position=${params?.data?.profile?.position}`}
+            rel="noopener noreferrer"
+          >
+            {params.data.profile.name}
+          </a>
+        </div>
       );
     },
     width: 200,
@@ -57,7 +74,12 @@ const columnDefs = (activityRef) => [
     headerName: "Post",
     cellRenderer: (params) => {
       return (
-        <a href={params.value} target="_blank" rel="noopener noreferrer">
+        <a
+          style={{ color: "#0056b3" }}
+          href={params.value}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {params?.data?.post_content}
         </a>
       );
@@ -69,7 +91,12 @@ const columnDefs = (activityRef) => [
     field: "post_author_linkedin_url",
     headerName: "Author Profile",
     cellRenderer: (params) => (
-      <a href={params.value} target="_blank" rel="noopener noreferrer">
+      <a
+        style={{ color: "#0056b3" }}
+        href={params.value}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         View Profile
       </a>
     ),

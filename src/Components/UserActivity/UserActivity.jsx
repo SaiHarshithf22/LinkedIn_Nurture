@@ -35,7 +35,12 @@ const activityColumnDefs = (activityRef) => [
     headerName: "Post",
     cellRenderer: (params) => {
       return (
-        <a href={params.value} target="_blank" rel="noopener noreferrer">
+        <a
+          style={{ color: "#0056b3" }}
+          href={params.value}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {params?.data?.post_content}
         </a>
       );
@@ -47,7 +52,12 @@ const activityColumnDefs = (activityRef) => [
     field: "post_author_linkedin_url",
     headerName: "Author Profile",
     cellRenderer: (params) => (
-      <a href={params.value} target="_blank" rel="noopener noreferrer">
+      <a
+        style={{ color: "#0056b3" }}
+        href={params.value}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         View Profile
       </a>
     ),
@@ -82,7 +92,9 @@ const baseURL = import.meta.env.VITE_BASE_URL;
 const token = localStorage.getItem("authToken");
 
 export const UserActivity = ({ id, perPage, setPerPage }) => {
-  const [activitiesData, setActivitiesData] = useState([]);
+  const [activitiesData, setActivitiesData] = useState({
+    pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
+  });
   const activityRef = useRef(null);
   const [activityType, setActivityType] = useState("all");
 
