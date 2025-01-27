@@ -1,5 +1,7 @@
 import { FilterAlt } from "@mui/icons-material";
 import { ProfileCheckbox } from "../ProfileCheckbox/ProfileCheckbox";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import { formatTimestamp } from "../../utils";
 
 export const columnDefs = (setFilterModal) => [
   {
@@ -9,9 +11,25 @@ export const columnDefs = (setFilterModal) => [
     flex: 1,
     cellRenderer: (params) => {
       return (
-        <a href={params.data.profile} target="_blank" rel="noopener noreferrer">
-          {params.data.name || params?.data?.profile?.split("in/")?.[1]}
-        </a>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+          }}
+        >
+          <a
+            style={{ display: "flex" }}
+            href={params.data.profile}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <LinkedInIcon />
+          </a>
+          <span>
+            {params.data.name || params?.data?.profile?.split("in/")?.[1]}
+          </span>
+        </div>
       );
     },
     headerComponent: (params) => (
@@ -64,5 +82,23 @@ export const columnDefs = (setFilterModal) => [
     cellRenderer: (params) => (
       <ProfileCheckbox name="is_scrape_reactions" data={params} />
     ),
+  },
+  {
+    field: "last_synced_at",
+    headerName: "Last Synced",
+    width: 200,
+    flex: 1,
+    valueGetter: (params) => {
+      if (params.data.last_synced_at) {
+        return formatTimestamp(params.data.last_synced_at);
+      }
+      return "";
+    },
+    tooltipValueGetter: (params) => {
+      if (params.data.last_synced_at) {
+        return formatTimestamp(params.data.last_synced_at);
+      }
+      return "";
+    },
   },
 ];
