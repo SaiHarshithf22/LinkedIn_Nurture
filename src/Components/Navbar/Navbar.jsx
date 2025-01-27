@@ -28,9 +28,16 @@ export const Navbar = ({}) => {
     setAnchorEl(null);
   };
   return (
-    <AppBar position="sticky">
+    <AppBar position="sticky" sx={{ backgroundColor: "#2563EB" }}>
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography
+          variant="h5"
+          component="div"
+          sx={{ flexGrow: 1, fontWeight: "bold", cursor: "pointer" }}
+          onClick={() => {
+            navigate("/");
+          }}
+        >
           LinkedIn Nurture
         </Typography>
         {token && (

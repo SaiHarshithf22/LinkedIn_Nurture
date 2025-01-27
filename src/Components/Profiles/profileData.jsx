@@ -26,9 +26,14 @@ export const columnDefs = (setFilterModal) => [
           >
             <LinkedInIcon />
           </a>
-          <span>
+          <a
+            style={{ color: "black" }}
+            href={`profile/${params.data.id}?name=${params?.data?.name}&profile=${params?.data?.profile}&position=${params?.data?.position}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {params.data.name || params?.data?.profile?.split("in/")?.[1]}
-          </span>
+          </a>
         </div>
       );
     },

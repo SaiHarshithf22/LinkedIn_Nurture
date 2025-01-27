@@ -1,16 +1,26 @@
+import { useEffect, useState } from "react";
+import { createContext } from "react";
+import { useNavigate } from "react-router";
 import Tabs from "../Tabs/Tabs";
 import { Profile } from "../Profiles/Profile";
 import { Posts } from "../Posts/Posts";
 import { Activites } from "../Activities/Activities";
-
-import { useState } from "react";
-import { createContext } from "react";
 
 export const ProfileContext = createContext([]);
 
 export const Home = () => {
   const [profilesSelected, setProfileSelected] = useState([]);
   const [perPage, setPerPage] = useState("20");
+  const token = localStorage.getItem("authToken");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    } else {
+      navigate("/");
+    }
+  }, [token]);
 
   const tabData = [
     {

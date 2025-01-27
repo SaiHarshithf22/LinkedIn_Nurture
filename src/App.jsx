@@ -5,6 +5,7 @@ import { ToastProvider } from "./Components/Toaster/Toaster";
 import { Route, Routes, useNavigate } from "react-router";
 import { Home } from "./Components/Home/Home";
 import "./App.css";
+import { UserProfile } from "./Components/UserProfile/UserProfile";
 
 function App() {
   const token = localStorage.getItem("authToken");
@@ -12,8 +13,6 @@ function App() {
   useEffect(() => {
     if (!token) {
       navigate("/login");
-    } else {
-      navigate("/");
     }
   }, [token]);
 
@@ -23,6 +22,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/profile/:id" element={<UserProfile />} />
       </Routes>
     </ToastProvider>
   );
