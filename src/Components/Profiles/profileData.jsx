@@ -29,7 +29,6 @@ export const columnDefs = (setFilterModal) => [
           <a
             style={{ color: "black" }}
             href={`profile/${params.data.id}?name=${params?.data?.name}&profile=${params?.data?.profile}&position=${params?.data?.position}`}
-            target="_blank"
             rel="noopener noreferrer"
           >
             {params.data.name || params?.data?.profile?.split("in/")?.[1]}
@@ -58,6 +57,25 @@ export const columnDefs = (setFilterModal) => [
   {
     field: "position",
     headerName: "Position",
+    width: 200,
+    flex: 1,
+  },
+
+  {
+    field: "total_comments",
+    headerName: "Total Comments",
+    width: 200,
+    flex: 1,
+  },
+  {
+    field: "total_posts",
+    headerName: "Total Posts",
+    width: 200,
+    flex: 1,
+  },
+  {
+    field: "total_reactions",
+    headerName: "Total Reactions",
     width: 200,
     flex: 1,
   },
