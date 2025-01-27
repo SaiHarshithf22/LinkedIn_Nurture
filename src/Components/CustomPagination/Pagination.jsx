@@ -34,7 +34,7 @@ export const CustomPagination = ({
               size="small"
               labelId="demo-simple-select-label"
               id="demo-simple-select"
-              value={perPage}
+              value={Number(perPage)}
               onChange={handleChange}
             >
               <MenuItem value={20}>20</MenuItem>

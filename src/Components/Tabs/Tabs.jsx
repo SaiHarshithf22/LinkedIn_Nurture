@@ -11,7 +11,6 @@ const Tabs = ({ tabs }) => {
     },
     header: {
       display: "flex",
-      borderBottom: "2px solid #ddd",
       justifyContent: "center",
     },
     button: (isActive) => ({
@@ -23,8 +22,10 @@ const Tabs = ({ tabs }) => {
       cursor: "pointer",
       fontSize: "16px",
       fontWeight: isActive ? "bold" : "normal",
+      borderBottom: isActive ? "2px solid #007bff" : "",
       color: isActive ? "#007bff" : "#333",
       transition: "border-color 0.3s, color 0.3s",
+      borderRadius: "0",
     }),
     buttonHover: {
       backgroundColor: "#f9f9f9",
@@ -34,6 +35,7 @@ const Tabs = ({ tabs }) => {
       width: "100%",
       height: "800px",
       background: "#fff",
+      height: "max-content",
     },
   };
 

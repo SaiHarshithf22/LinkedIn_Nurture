@@ -9,7 +9,7 @@ export const UserProfile = () => {
   const [perPage, setPerPage] = useState(20);
   const gradientStyle = {
     width: "100%",
-    height: "80px",
+    height: "75px",
     background: "linear-gradient(270deg, #4B6CB7 0%, #182848 100%)",
   };
 
@@ -110,6 +110,7 @@ export const UserProfile = () => {
             flexDirection: "column",
             alignItems: "start",
             backgroundColor: "white",
+            height: "max-content",
           }}
         >
           <Tabs tabs={tabData} />

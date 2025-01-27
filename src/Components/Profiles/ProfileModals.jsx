@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useToast } from "../Toaster/Toaster";
 import {
   Autocomplete,
   TextField,
@@ -99,9 +98,9 @@ export const FilterProfile = ({
             option?.name || option?.profile?.split("in/")?.[1]
           }
           renderOption={(props, option, { selected }) => {
-            const { key, ...optionProps } = props;
+            const { key, id, ...optionProps } = props;
             return (
-              <li key={key} {...optionProps}>
+              <li key={id} {...optionProps}>
                 <Checkbox style={{ marginRight: 8 }} checked={selected} />
                 {option.name || option?.profile?.split("in/")?.[1]}
               </li>
