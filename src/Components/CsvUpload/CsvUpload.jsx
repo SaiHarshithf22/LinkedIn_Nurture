@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import * as Papa from "papaparse";
-import { Card, IconButton } from "@mui/material";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { useEffect } from "react";
 import { useToast } from "../Toaster/Toaster";
 import Modal from "../Modal/Modal";
@@ -9,6 +7,7 @@ import { useRef } from "react";
 import ProfileImportErrors, {
   ProfileImportLoader,
 } from "../ProfileImportError/ProfileImportError";
+import { CsvUploadIcon } from "../../assets/CsvUpload";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 const token = localStorage.getItem("authToken");
@@ -132,7 +131,7 @@ const CSVUploader = () => {
   }, [csvData]);
 
   return (
-    <Card>
+    <div>
       <input
         accept=".csv"
         style={{ display: "none" }}
@@ -141,19 +140,7 @@ const CSVUploader = () => {
         onChange={handleFileUpload}
       />
       <label htmlFor="csv-upload-button">
-        <IconButton
-          color="primary"
-          aria-label="upload CSV"
-          component="span"
-          sx={{
-            fontSize: 16,
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <FileUploadIcon fontSize="inherit" />
-        </IconButton>
+        <CsvUploadIcon />
       </label>
       <Modal
         modalRef={addProfileRef}
@@ -178,7 +165,7 @@ const CSVUploader = () => {
           </div>
         }
       />
-    </Card>
+    </div>
   );
 };
 

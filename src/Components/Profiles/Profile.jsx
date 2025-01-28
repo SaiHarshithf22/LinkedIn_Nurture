@@ -1,13 +1,13 @@
-import { useRef, useState, useEffect, useContext } from "react";
+import { useRef, useState, useEffect } from "react";
 import TableComponent from "../Table/Table";
 import Modal from "../Modal/Modal";
 import { CustomPagination } from "../CustomPagination/Pagination";
 import { columnDefs } from "./profileData";
-import { buttonStyle, FilterProfile } from "./ProfileModals";
+import { FilterProfile } from "./ProfileModals";
 import { useToast } from "../Toaster/Toaster";
 import { CustomCheckbox } from "../CustomCheckbox/CustomCheckbox";
-import { ProfileContext } from "../Home/Home";
 import CSVUploader from "../CsvUpload/CsvUpload";
+import { FilledButton, FilterButton, OutlineButton } from "../Buttons/Buttons";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -125,34 +125,27 @@ const ModalContent = ({ modalRef }) => {
           gap: "16px",
         }}
       >
-        <button type="submit" style={buttonStyle}>
-          Add Profile
-        </button>
-        <button
+        <FilledButton type="submit" children="Submit" />
+        <OutlineButton
+          children="Close"
           type="button"
-          style={{
-            ...buttonStyle,
-            backgroundColor: "#dc3545",
-          }}
           onClick={() => {
             clearForm();
             modalRef.current.close();
           }}
-        >
-          Close
-        </button>
+        />
       </div>
     </form>
   );
 };
 
 export const Profile = ({ perPage, setPerPage }) => {
-  const { profilesSelected, setProfileSelected } = useContext(ProfileContext);
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
 
   const [filterModal, setFilterModal] = useState(false);
+  const [selectedProfiles, setSelectedProfiles] = useState([]);
   const modalRef = useRef(null);
   const token = localStorage.getItem("authToken");
 
@@ -195,27 +188,31 @@ export const Profile = ({ perPage, setPerPage }) => {
     setPerPage(value);
   };
 
-  const handleClearFilter = () => {
-    setProfileSelected([]);
+  const handleFilter = () => {
+    if (selectedProfiles?.length) {
+      setSelectedProfiles([]);
+    } else {
+      setFilterModal(true);
+    }
   };
 
   useEffect(() => {
-    if (profilesSelected?.length > 0) {
+    if (selectedProfiles?.length > 0) {
       setData((prev) => {
         return {
           pagination: {
-            total: profilesSelected.length,
+            total: selectedProfiles.length,
             current_page: 1,
             total_pages: 1,
             per_page: 20,
           },
-          profiles: profilesSelected,
+          profiles: selectedProfiles,
         };
       });
     } else {
       getProfiles();
     }
-  }, [profilesSelected]);
+  }, [selectedProfiles]);
 
   return (
     <div>
@@ -229,39 +226,22 @@ export const Profile = ({ perPage, setPerPage }) => {
         <h2 style={{ color: "#00165a" }}>Profiles</h2>
         <div style={{ display: "flex", gap: "8px" }}>
           <CSVUploader />
-          <button
-            style={{
-              padding: "8px 16px",
-              backgroundColor: "gray",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-            onClick={handleClearFilter}
-          >
-            Clear Filter
-          </button>
-          <button
-            style={{
-              padding: "8px 16px",
-              backgroundColor: "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
+          <FilterButton
+            handleFilter={handleFilter}
+            selected={selectedProfiles}
+          />
+
+          <FilledButton
+            children={"Add Profile"}
             onClick={() => {
               modalRef.current?.showModal();
             }}
-          >
-            Add Profile
-          </button>
+          />
         </div>
       </div>
       <TableComponent
         rowData={data?.profiles}
-        columnDefs={columnDefs(setFilterModal)}
+        columnDefs={columnDefs}
         height="600px"
         width="900px"
       />
@@ -283,7 +263,8 @@ export const Profile = ({ perPage, setPerPage }) => {
       <FilterProfile
         filterModal={filterModal}
         setFilterModal={setFilterModal}
-        setProfileSelected={setProfileSelected}
+        selectedProfiles={selectedProfiles}
+        setSelectedProfiles={setSelectedProfiles}
       />
     </div>
   );
