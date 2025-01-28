@@ -1,7 +1,111 @@
-import { FilterAlt } from "@mui/icons-material";
 import { ProfileCheckbox } from "../ProfileCheckbox/ProfileCheckbox";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import { formatTimestamp } from "../../utils";
+import { formatTimestamp, syncProfile } from "../../utils";
+import { IconButton, Menu, MenuItem } from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useState } from "react";
+import { useToast } from "../Toaster/Toaster";
+
+const options = ["Sync", "Delete"];
+
+const baseURL = import.meta.env.VITE_BASE_URL;
+const token = localStorage.getItem("authToken");
+
+const ActionsMenu = ({ id }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const showToast = useToast();
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const syncProfileCall = async () => {
+    const res = await syncProfile(id);
+    if (res) {
+      showToast("Profile Synced");
+    }
+  };
+
+  const deleteProfile = async () => {
+    const apiUrl = `${baseURL}/linkedin/profiles/${id}/status`;
+    const requestBody = {
+      status: "inactive",
+    };
+    try {
+      const response = await fetch(apiUrl, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json(); // Parse the JSON response
+      if (data?.id) {
+        showToast("Profile deleted");
+        // window.location.reload();
+      }
+    } catch (error) {
+      showToast("Error deleting profile", "error");
+      console.error("Error deleting profiles:", error);
+      return null;
+    }
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleOptionsClick = (option) => {
+    if (option?.toLowerCase() === "sync") {
+      syncProfileCall();
+    } else if (option?.toLowerCase() === "delete") {
+      deleteProfile();
+    }
+    setAnchorEl(null);
+  };
+
+  return (
+    <div>
+      <IconButton
+        aria-label="more"
+        id="long-button"
+        aria-controls={open ? "long-menu" : undefined}
+        aria-expanded={open ? "true" : undefined}
+        aria-haspopup="true"
+        onClick={handleClick}
+      >
+        <MoreVertIcon fontSize="small" />
+      </IconButton>
+      <Menu
+        id="long-menu"
+        MenuListProps={{
+          "aria-labelledby": "long-button",
+        }}
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+      >
+        {options.map((option) => (
+          <MenuItem
+            key={option}
+            selected={option === "Pyxis"}
+            onClick={() => {
+              handleOptionsClick(option);
+            }}
+          >
+            {option}
+          </MenuItem>
+        ))}
+      </Menu>
+    </div>
+  );
+};
 
 export const columnDefs = [
   {
@@ -106,5 +210,13 @@ export const columnDefs = [
       }
       return "";
     },
+  },
+
+  {
+    field: "id",
+    headerName: "",
+    width: 200,
+    flex: 0.5,
+    cellRenderer: (params) => <ActionsMenu id={params?.value} />,
   },
 ];
