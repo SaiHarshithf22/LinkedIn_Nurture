@@ -8,6 +8,7 @@ import { useToast } from "../Toaster/Toaster";
 import { CustomCheckbox } from "../CustomCheckbox/CustomCheckbox";
 import CSVUploader from "../CsvUpload/CsvUpload";
 import { FilledButton, FilterButton, OutlineButton } from "../Buttons/Buttons";
+import { isDeepEqual } from "../../utils";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -139,22 +140,55 @@ const ModalContent = ({ modalRef }) => {
   );
 };
 
-export const Profile = ({ perPage, setPerPage }) => {
+const initialFilters = {
+  profiles: [],
+  scrapePosts: true,
+  scrapeComments: true,
+  scrapeReactions: true,
+};
+
+export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
 
   const [filterModal, setFilterModal] = useState(false);
-  const [selectedProfiles, setSelectedProfiles] = useState([]);
   const modalRef = useRef(null);
   const token = localStorage.getItem("authToken");
+  const [filterTypes, setFilterTypes] = useState(initialFilters);
 
   const getProfiles = async (params) => {
-    const page = params?.page ? params?.page : 1;
-    const limit = params?.perPage ? params?.perPage : perPage;
-    const apiUrl = `${baseURL}/linkedin/profiles?page=${
-      page ? page : 1
-    }&limit=${limit}`;
+    const {
+      page = 1,
+      perPage = initialPageSize,
+      profiles,
+      is_scrape_posts,
+      sort_by,
+      sort_order,
+      is_scrape_comments,
+      is_scrape_reactions,
+    } = params || {};
+
+    const ids = profiles?.map((profile) => profile.id) || [];
+    const profileIdsQuery = ids.length ? `&ids=${ids.join(",")}` : "";
+
+    // Build query parameters
+    const queryParams = new URLSearchParams({
+      page: page,
+      limit: perPage,
+    });
+
+    // Add optional parameters if they exist
+    if (is_scrape_posts !== undefined)
+      queryParams.append("is_scrape_posts", is_scrape_posts);
+    if (sort_by) queryParams.append("sort_by", sort_by);
+    if (sort_order) queryParams.append("sort_order", sort_order);
+    if (is_scrape_comments !== undefined)
+      queryParams.append("is_scrape_comments", is_scrape_comments);
+    if (is_scrape_reactions !== undefined)
+      queryParams.append("is_scrape_reactions", is_scrape_reactions);
+
+    const apiUrl = `${baseURL}/linkedin/profiles?${queryParams.toString()}${profileIdsQuery}`;
 
     try {
       const response = await fetch(apiUrl, {
@@ -180,39 +214,56 @@ export const Profile = ({ perPage, setPerPage }) => {
   };
 
   const onPageChange = (event, value) => {
-    getProfiles({ page: value });
+    getProfiles({
+      page: value,
+      profiles: filterTypes?.profiles,
+      is_scrape_posts: filterTypes?.scrapePosts,
+      is_scrape_comments: filterTypes?.scrapeComments,
+      is_scrape_reactions: filterTypes?.scrapeReactions,
+    });
   };
 
   const handlePerPageChange = (value) => {
-    getProfiles({ perPage: value });
+    getProfiles({
+      perPage: value,
+      profiles: filterTypes?.profiles,
+      is_scrape_posts: filterTypes?.scrapePosts,
+      is_scrape_comments: filterTypes?.scrapeComments,
+      is_scrape_reactions: filterTypes?.scrapeReactions,
+    });
     setPerPage(value);
   };
 
   const handleFilter = () => {
-    if (selectedProfiles?.length) {
-      setSelectedProfiles([]);
+    if (!isDeepEqual(initialFilters, filterTypes)) {
+      setFilterTypes(initialFilters);
+      getProfiles({});
     } else {
       setFilterModal(true);
     }
   };
 
+  const handleApplyFilter = async (profiles) => {
+    await getProfiles({
+      profiles: profiles,
+      is_scrape_posts: filterTypes?.scrapePosts,
+      is_scrape_comments: filterTypes?.scrapeComments,
+      is_scrape_reactions: filterTypes?.scrapeReactions,
+    });
+  };
+
   useEffect(() => {
-    if (selectedProfiles?.length > 0) {
-      setData((prev) => {
-        return {
-          pagination: {
-            total: selectedProfiles.length,
-            current_page: 1,
-            total_pages: 1,
-            per_page: 20,
-          },
-          profiles: selectedProfiles,
-        };
+    if (filterTypes?.profiles?.length > 0) {
+      getProfiles({
+        profiles: filterTypes?.profiles,
+        is_scrape_posts: filterTypes?.scrapePosts,
+        is_scrape_comments: filterTypes?.scrapeComments,
+        is_scrape_reactions: filterTypes?.scrapeReactions,
       });
     } else {
       getProfiles();
     }
-  }, [selectedProfiles]);
+  }, []);
 
   return (
     <div>
@@ -228,7 +279,8 @@ export const Profile = ({ perPage, setPerPage }) => {
           <CSVUploader />
           <FilterButton
             handleFilter={handleFilter}
-            selected={selectedProfiles}
+            selected={filterTypes?.profiles}
+            isClear={!isDeepEqual(initialFilters, filterTypes)}
           />
 
           <FilledButton
@@ -251,7 +303,7 @@ export const Profile = ({ perPage, setPerPage }) => {
         currentPage={data?.pagination?.current_page}
         onPageChange={onPageChange}
         onPerPageChange={handlePerPageChange}
-        perPage={perPage}
+        perPage={initialPageSize}
       />
 
       <Modal
@@ -263,8 +315,9 @@ export const Profile = ({ perPage, setPerPage }) => {
       <FilterProfile
         filterModal={filterModal}
         setFilterModal={setFilterModal}
-        selectedProfiles={selectedProfiles}
-        setSelectedProfiles={setSelectedProfiles}
+        filterTypes={filterTypes}
+        setFilterTypes={setFilterTypes}
+        handleApplyFilter={handleApplyFilter}
       />
     </div>
   );

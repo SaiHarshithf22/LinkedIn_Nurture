@@ -1,13 +1,8 @@
-import { useContext, useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
-import RadioButtons from "../RadioButton/RadioButton";
-import { FilterAlt } from "@mui/icons-material";
-import { ProfileContext } from "../Home/Home";
-import Modal from "../Modal/Modal";
-
-import { formatTimestamp } from "../../utils";
+import { formatTimestamp, isDeepEqual } from "../../utils";
 import { ActivitiesFilter } from "../Filters/ActivitiesFilter";
 import { FilterButton } from "../Buttons/Buttons";
 
@@ -112,16 +107,20 @@ const columnDefs = [
   },
 ];
 
+const initialFilters = {
+  profiles: [],
+  activityType: "all",
+  createdAtEnd: "",
+  createdAtStart: "",
+};
+
 export const Activites = ({ perPage, setPerPage }) => {
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
-
+  const [filterTypes, setFilterTypes] = useState(initialFilters);
   const token = localStorage.getItem("authToken");
   const [filterModal, setFilterModal] = useState(false);
-  const [selectedProfiles, setSelectedProfiles] = useState([]);
-
-  const ids = selectedProfiles?.map((profile) => profile.id);
 
   const gridApi = useRef(null);
 
@@ -130,15 +129,15 @@ export const Activites = ({ perPage, setPerPage }) => {
   };
 
   const getActivities = async (params) => {
+    const ids = params?.profiles?.map((profile) => profile.id) || [];
     const limit = params?.perPage ?? perPage;
     const pageNum = Number(params?.page);
     const validatedPage = !isNaN(pageNum) && pageNum > 0 ? pageNum : 1;
     const sortOrder = params?.sortOrder || "";
-    const profileIds = params?.profileIds || [];
+    const createdAtStart = params?.createdAtStart || "";
+    const createdAtEnd = params?.createdAtEnd || "";
 
-    const profileIdsQuery = profileIds.length
-      ? `&profile_ids=${profileIds.join(",")}`
-      : "";
+    const profileIdsQuery = ids.length ? `&profile_ids=${ids.join(",")}` : "";
 
     const selectedActivity = params?.activityType?.trim() || "all";
 
@@ -147,6 +146,13 @@ export const Activites = ({ perPage, setPerPage }) => {
       page: validatedPage.toString(),
       limit: limit.toString(),
     };
+
+    if (createdAtStart) {
+      queryParamsObj.created_at_start = createdAtStart;
+    }
+    if (createdAtEnd) {
+      queryParamsObj.created_at_end = createdAtEnd;
+    }
 
     // Only add activity_type if it's not "all"
     if (selectedActivity && selectedActivity !== "all") {
@@ -189,40 +195,60 @@ export const Activites = ({ perPage, setPerPage }) => {
     const sortModel = gridApi.current
       ?.getColumnState()
       .find((col) => col.sort)?.sort;
-    getActivities({ page: value, profileIds: ids, sortOrder: sortModel });
+    getActivities({
+      page: value,
+      profiles: filterTypes?.profiles,
+      sortOrder: sortModel,
+      activityType: filterTypes?.activityType,
+      createdAtStart: filterTypes?.createdAtStart,
+      createdAtEnd: filterTypes?.createdAtEnd,
+    });
   };
 
   const handlePerPageChange = (value) => {
     const sortModel = gridApi.current
       ?.getColumnState()
       .find((col) => col.sort)?.sort;
-    getActivities({ perPage: value, profileIds: ids, sortOrder: sortModel });
+    getActivities({
+      perPage: value,
+      profiles: filterTypes?.profiles,
+      sortOrder: sortModel,
+      activityType: filterTypes?.activityType,
+      createdAtStart: filterTypes?.createdAtStart,
+      createdAtEnd: filterTypes?.createdAtEnd,
+    });
     setPerPage(value);
   };
 
   const onSortChanged = (event) => {
     const sortModel = event.api.getColumnState().find((col) => col.sort);
     if (sortModel?.sort) {
-      getActivities({ sortOrder: sortModel.sort, profileIds: ids });
+      getActivities({
+        perPage: value,
+        sortOrder: sortModel.sort,
+        profiles: filterTypes?.profiles,
+        activityType: filterTypes?.activityType,
+      });
     } else {
-      getActivities({ profileIds: ids });
+      getActivities({ profiles: filterTypes?.profiles });
     }
   };
 
-  const handleApplyFilter = async ({ activity, profiles }) => {
+  const handleApplyFilter = async ({ profiles }) => {
     const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
-    const ids = profiles?.map((profile) => profile.id);
 
     await getActivities({
-      activityType: activity,
-      profileIds: ids,
+      activityType: filterTypes?.activityType,
+      profiles: profiles,
       sortOrder: sortModel?.sort,
+      createdAtStart: filterTypes?.createdAtStart,
+      createdAtEnd: filterTypes?.createdAtEnd,
     });
   };
 
   const handleFilter = () => {
-    if (selectedProfiles?.length) {
-      setSelectedProfiles([]);
+    if (!isDeepEqual(initialFilters, filterTypes)) {
+      setFilterTypes(initialFilters);
       getActivities();
     } else {
       setFilterModal(true);
@@ -230,8 +256,11 @@ export const Activites = ({ perPage, setPerPage }) => {
   };
 
   useEffect(() => {
-    if (selectedProfiles?.length > 0) {
-      getActivities({ profileIds: ids });
+    if (!isDeepEqual(initialFilters, filterTypes)) {
+      getActivities({
+        profiles: filterTypes?.profiles,
+        activityType: filterTypes?.activityType,
+      });
     } else {
       getActivities();
     }
@@ -256,7 +285,10 @@ export const Activites = ({ perPage, setPerPage }) => {
         >
           <h2 style={{ color: "#00165a" }}>Activities</h2>
         </div>
-        <FilterButton handleFilter={handleFilter} selected={selectedProfiles} />
+        <FilterButton
+          handleFilter={handleFilter}
+          isClear={!isDeepEqual(initialFilters, filterTypes)}
+        />
       </div>
       <TableComponent
         rowData={data?.activities}
@@ -273,8 +305,8 @@ export const Activites = ({ perPage, setPerPage }) => {
       />
 
       <ActivitiesFilter
-        selectedProfiles={selectedProfiles}
-        setSelectedProfiles={setSelectedProfiles}
+        filterTypes={filterTypes}
+        setFilterTypes={setFilterTypes}
         filterModal={filterModal}
         setFilterModal={setFilterModal}
         handleApplyFilter={handleApplyFilter}

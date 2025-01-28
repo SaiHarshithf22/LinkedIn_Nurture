@@ -13,10 +13,10 @@ const outlineStyles = {
   fontSize: "16px",
 };
 
-export const FilterButton = ({ handleFilter, selected }) => {
+export const FilterButton = ({ handleFilter, isClear }) => {
   return (
     <button style={outlineStyles} onClick={handleFilter}>
-      <FilterAlt fontSize="16" /> {selected?.length > 0 ? "Clear" : ""} Filter
+      <FilterAlt fontSize="16" /> {isClear ? "Clear" : ""} Filter
     </button>
   );
 };

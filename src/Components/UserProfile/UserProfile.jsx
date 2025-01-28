@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation, useParams } from "react-router";
 
 import { UserPost } from "../UserPost/UserPost";
 import { UserActivity } from "../UserActivity/UserActivity";
 import Tabs from "../Tabs/Tabs";
 import { Gradient } from "../Gradient/Gradient";
+import { LinkedIn } from "@mui/icons-material";
+import { syncProfile } from "../../utils";
+import { useToast } from "../Toaster/Toaster";
 
 export const UserProfile = () => {
   const [perPage, setPerPage] = useState(20);
@@ -14,6 +17,7 @@ export const UserProfile = () => {
   const name = queryParams.get("name");
   const position = queryParams.get("position");
   const profile = queryParams.get("profile");
+  const showToast = useToast();
 
   const { id } = useParams();
 
@@ -30,7 +34,12 @@ export const UserProfile = () => {
     },
   ];
 
-  useEffect(() => {}, []);
+  const syncProfileCall = async () => {
+    const res = await syncProfile(id);
+    if (res) {
+      showToast("Profile Synced");
+    }
+  };
 
   return (
     <div style={{ padding: "32px", backgroundColor: "#F9F9F9" }}>
@@ -74,23 +83,38 @@ export const UserProfile = () => {
                 </p>
               </div>
             </div>
-            <button
-              href="/"
-              style={{
-                display: "flex",
-                padding: "12px 22px",
-                borderRadius: "12px",
-                backgroundColor: "#1976D2",
-                color: "white",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-              onClick={() => {
-                window.open(profile, "_blank");
-              }}
-            >
-              Open LinkedIn
-            </button>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div
+                href="/"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  backgroundColor: "white",
+                  color: "#1976D2",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  window.open(profile, "_blank");
+                }}
+              >
+                <LinkedIn fontSize="large" />
+              </div>
+              <button
+                href="/"
+                style={{
+                  display: "flex",
+                  padding: "6px 22px",
+                  borderRadius: "12px",
+                  backgroundColor: "#1976D2",
+                  color: "white",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onClick={syncProfileCall}
+              >
+                Sync Profile
+              </button>
+            </div>
           </div>
         </div>
         <div
