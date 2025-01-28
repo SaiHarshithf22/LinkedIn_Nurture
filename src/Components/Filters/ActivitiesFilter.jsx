@@ -2,31 +2,36 @@ import { useEffect, useState } from "react";
 import { NameFilter } from "../NameFilter/NameFilter";
 import RadioButtons from "../RadioButton/RadioButton";
 import { MaterialDialog } from "../Modal/Modal";
+import { FilterDatePicker } from "../DatePicker/DatePicker";
 
 export const ActivitiesFilter = ({
   filterModal,
   setFilterModal,
-  selectedProfiles,
-  setSelectedProfiles,
   handleApplyFilter,
+  filterTypes,
+  setFilterTypes,
 }) => {
-  const [activityType, setActivityType] = useState("all");
   const [profiles, setProfiles] = useState([]);
   const handleFilterClose = () => {
     setFilterModal(false);
   };
 
   const handleSelectProfiles = async () => {
-    setSelectedProfiles(profiles);
-    await handleApplyFilter({ activity: activityType, profiles: profiles });
+    setFilterTypes((prev) => {
+      return {
+        ...prev,
+        profiles: profiles,
+      };
+    });
+    await handleApplyFilter({ profiles: profiles });
     handleFilterClose();
   };
 
   useEffect(() => {
-    if (selectedProfiles?.length === 0) {
+    if (filterTypes?.profiles?.length === 0) {
       setProfiles([]);
     }
-  }, [selectedProfiles]);
+  }, [filterTypes?.profiles]);
   return (
     <MaterialDialog
       title={"Activities Filters"}
@@ -40,15 +45,38 @@ export const ActivitiesFilter = ({
             setSelectedProfiles={setProfiles}
           />
           <RadioButtons
+            label="Activity Type"
             defaultValue="all"
             options={[
               { label: "All", value: "all" },
               { label: "Reaction", value: "reaction" },
               { label: "Comment", value: "comment" },
             ]}
-            value={activityType}
-            setValue={setActivityType}
+            value={filterTypes?.activityType}
+            setValue={(val) =>
+              setFilterTypes((prev) => {
+                return {
+                  ...prev,
+                  activityType: val,
+                };
+              })
+            }
             onChange={() => {}}
+          />
+          <FilterDatePicker
+            label="Post Created at"
+            fromSelectedDate={filterTypes?.createdAtStart}
+            setFromSelectedDate={(val) =>
+              setFilterTypes((prev) => {
+                return { ...prev, createdAtStart: val };
+              })
+            }
+            toSelectedDate={filterTypes?.createdAtEnd}
+            setToSelectedDate={(val) =>
+              setFilterTypes((prev) => {
+                return { ...prev, createdAtEnd: val };
+              })
+            }
           />
         </>
       }

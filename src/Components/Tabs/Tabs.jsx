@@ -33,7 +33,6 @@ const Tabs = ({ tabs }) => {
     content: {
       padding: "32px 12px",
       width: "100%",
-      height: "800px",
       background: "#fff",
       height: "max-content",
     },

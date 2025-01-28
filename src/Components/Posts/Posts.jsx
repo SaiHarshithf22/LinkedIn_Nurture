@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
-import { formatTimestamp } from "../../utils";
+import { formatTimestamp, isDeepEqual } from "../../utils";
 import { PostsFilter } from "../Filters/PostsFilter";
-import { FilterAlt } from "@mui/icons-material";
 import { FilterButton } from "../Buttons/Buttons";
 
 const columnDefs = [
@@ -84,10 +83,17 @@ const columnDefs = [
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
+const initialFilters = {
+  profiles: [],
+  timestampEnd: "",
+  timestampStart: "",
+  createdAtEnd: "",
+  createdAtStart: "",
+};
+
 export const Posts = ({ perPage, setPerPage }) => {
   const [filterModal, setFilterModal] = useState(false);
-  const [selectedProfiles, setSelectedProfiles] = useState([]);
-  const ids = selectedProfiles?.map((profile) => profile.id);
+  const [filterTypes, setFilterTypes] = useState(initialFilters);
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
@@ -96,20 +102,39 @@ export const Posts = ({ perPage, setPerPage }) => {
   const gridApi = useRef(null);
 
   const getPosts = async (params) => {
+    const ids = params?.profiles?.map((profile) => profile.id);
     const page = params?.page ? params?.page : 1;
     const limit = params?.perPage ? params?.perPage : perPage;
     const sortOrder = params?.sortOrder;
     const sortBy = params?.sortBy;
-    const profileIds = params?.profileIds || [];
+    const profileIds = ids || [];
+    const timestampStart = params?.timestampStart;
+    const timestampEnd = params?.timestampEnd;
+    const createdAtStart = params?.createdAtStart;
+    const createdAtEnd = params?.createdAtEnd;
 
     // Construct the query string for profile IDs
     const profileIdsQuery = profileIds.length
       ? `&profile_ids=${profileIds.join(",")}`
       : "";
 
+    // Construct timestamp and created_at query parameters
+    const timestampQuery = timestampStart
+      ? `&timestamp_start=${timestampStart}`
+      : "";
+    const timestampEndQuery = timestampEnd
+      ? `&timestamp_end=${timestampEnd}`
+      : "";
+    const createdAtStartQuery = createdAtStart
+      ? `&created_at_start=${createdAtStart}`
+      : "";
+    const createdAtEndQuery = createdAtEnd
+      ? `&created_at_end=${createdAtEnd}`
+      : "";
+
     const apiUrl = `${baseURL}/linkedin/posts?page=${page}&limit=${limit}${
       sortOrder ? `&sort=${sortOrder}&sort_by=${sortBy}` : ""
-    }${profileIdsQuery}`;
+    }${profileIdsQuery}${timestampQuery}${timestampEndQuery}${createdAtStartQuery}${createdAtEndQuery}`;
 
     try {
       const response = await fetch(apiUrl, {
@@ -147,8 +172,12 @@ export const Posts = ({ perPage, setPerPage }) => {
     getPosts({
       page: value,
       sortOrder: sortModel?.sort,
-      profileIds: ids,
+      profiles: filterTypes?.profiles,
       sortBy: sortBy,
+      timestampEnd: filterTypes?.timestampEnd,
+      timestampStart: filterTypes?.timestampStart,
+      createdAtEnd: filterTypes?.createdAtEnd,
+      createdAtStart: filterTypes?.createdAtStart,
     });
   };
 
@@ -165,8 +194,12 @@ export const Posts = ({ perPage, setPerPage }) => {
     getPosts({
       perPage: value,
       sortOrder: sortModel?.sort,
-      profileIds: ids,
+      profiles: filterTypes?.profiles,
       sortBy: sortBy,
+      timestampEnd: filterTypes?.timestampEnd,
+      timestampStart: filterTypes?.timestampStart,
+      createdAtEnd: filterTypes?.createdAtEnd,
+      createdAtStart: filterTypes?.createdAtStart,
     });
   };
 
@@ -183,27 +216,52 @@ export const Posts = ({ perPage, setPerPage }) => {
         ? "timestamp"
         : "";
     if (sortModel?.sort) {
-      getPosts({ sortOrder: sortModel.sort, profileIds: ids, sortBy: sortBy });
+      getPosts({
+        sortOrder: sortModel.sort,
+        profiles: filterTypes?.profiles,
+        sortBy: sortBy,
+        timestampEnd: filterTypes?.timestampEnd,
+        timestampStart: filterTypes?.timestampStart,
+        createdAtEnd: filterTypes?.createdAtEnd,
+        createdAtStart: filterTypes?.createdAtStart,
+      });
     } else {
-      getPosts({ profileIds: ids });
+      getPosts({ profiles: filterTypes?.profiles });
     }
   };
 
   const handleFilter = () => {
-    if (selectedProfiles?.length) {
-      setSelectedProfiles([]);
+    if (!isDeepEqual(initialFilters, filterTypes)) {
+      setFilterTypes(initialFilters);
+      getPosts();
     } else {
       setFilterModal(true);
     }
   };
 
+  const handleApplyFilter = async (profiles) => {
+    await getPosts({
+      profiles: profiles,
+      timestampEnd: filterTypes?.timestampEnd,
+      timestampStart: filterTypes?.timestampStart,
+      createdAtEnd: filterTypes?.createdAtEnd,
+      createdAtStart: filterTypes?.createdAtStart,
+    });
+  };
+
   useEffect(() => {
-    if (selectedProfiles?.length > 0) {
-      getPosts({ profileIds: ids });
+    if (!isDeepEqual(initialFilters, filterTypes)) {
+      getPosts({
+        profiles: filterTypes?.profiles,
+        timestampEnd: filterTypes?.timestampEnd,
+        timestampStart: filterTypes?.timestampStart,
+        createdAtEnd: filterTypes?.createdAtEnd,
+        createdAtStart: filterTypes?.createdAtStart,
+      });
     } else {
       getPosts();
     }
-  }, [selectedProfiles]);
+  }, []);
 
   return (
     <div>
@@ -215,7 +273,10 @@ export const Posts = ({ perPage, setPerPage }) => {
         }}
       >
         <h2 style={{ color: "#00165a" }}>Posts</h2>
-        <FilterButton handleFilter={handleFilter} selected={selectedProfiles} />
+        <FilterButton
+          handleFilter={handleFilter}
+          isClear={!isDeepEqual(initialFilters, filterTypes)}
+        />
       </div>
       <TableComponent
         rowData={data?.posts}
@@ -231,10 +292,11 @@ export const Posts = ({ perPage, setPerPage }) => {
         perPage={perPage}
       />
       <PostsFilter
-        selectedProfiles={selectedProfiles}
-        setSelectedProfiles={setSelectedProfiles}
+        filterTypes={filterTypes}
+        setFilterTypes={setFilterTypes}
         filterModal={filterModal}
         setFilterModal={setFilterModal}
+        handleApplyFilter={handleApplyFilter}
       />
     </div>
   );
