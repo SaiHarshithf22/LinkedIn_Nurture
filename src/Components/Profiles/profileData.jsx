@@ -3,7 +3,7 @@ import { ProfileCheckbox } from "../ProfileCheckbox/ProfileCheckbox";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import { formatTimestamp } from "../../utils";
 
-export const columnDefs = (setFilterModal) => [
+export const columnDefs = [
   {
     field: "name",
     headerName: "Name",
@@ -36,23 +36,6 @@ export const columnDefs = (setFilterModal) => [
         </div>
       );
     },
-    headerComponent: (params) => (
-      <div
-        onClick={() => setFilterModal(true)}
-        style={{
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
-        }}
-      >
-        <span>{params.displayName}</span>
-        <span style={{ marginLeft: "5px", fontSize: "12px" }}>
-          <FilterAlt />
-        </span>
-      </div>
-    ),
   },
   {
     field: "position",

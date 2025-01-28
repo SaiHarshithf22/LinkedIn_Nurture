@@ -1,9 +1,9 @@
+import { useNavigate } from "react-router";
+import { useLayoutEffect } from "react";
 import { useState } from "react";
 import { Button, TextField } from "@mui/material";
 import OTPInput from "../OTPInput/OTPInput";
 import { useToast } from "../Toaster/Toaster";
-import { useNavigate } from "react-router";
-import { useLayoutEffect } from "react";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -81,7 +81,7 @@ export const Login = () => {
     if (token) {
       navigate("/");
     }
-  }, []);
+  }, [token]);
 
   return (
     <div

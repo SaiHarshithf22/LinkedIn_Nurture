@@ -4,14 +4,10 @@ import { useLocation, useParams } from "react-router";
 import { UserPost } from "../UserPost/UserPost";
 import { UserActivity } from "../UserActivity/UserActivity";
 import Tabs from "../Tabs/Tabs";
+import { Gradient } from "../Gradient/Gradient";
 
 export const UserProfile = () => {
   const [perPage, setPerPage] = useState(20);
-  const gradientStyle = {
-    width: "100%",
-    height: "75px",
-    background: "linear-gradient(270deg, #4B6CB7 0%, #182848 100%)",
-  };
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -37,15 +33,9 @@ export const UserProfile = () => {
   useEffect(() => {}, []);
 
   return (
-    <div style={{ padding: "32px" }}>
-      <div>
-        <div
-          style={{
-            ...gradientStyle,
-            borderTopLeftRadius: "12px",
-            borderTopRightRadius: "12px",
-          }}
-        ></div>
+    <div style={{ padding: "32px", backgroundColor: "#F9F9F9" }}>
+      <div style={{ backgroundColor: "white" }}>
+        <Gradient />
         <div style={{ padding: "24px" }}>
           <div
             style={{

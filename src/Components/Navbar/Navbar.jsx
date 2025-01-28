@@ -28,7 +28,7 @@ export const Navbar = ({}) => {
     setAnchorEl(null);
   };
   return (
-    <AppBar position="sticky" sx={{ backgroundColor: "#2563EB" }}>
+    <AppBar position="sticky" sx={{ backgroundColor: "#1976D2" }}>
       <Toolbar>
         <Typography
           variant="h5"

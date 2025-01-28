@@ -1,9 +1,11 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
-import { ProfileContext } from "../Home/Home";
 import { formatTimestamp } from "../../utils";
+import { PostsFilter } from "../Filters/PostsFilter";
+import { FilterAlt } from "@mui/icons-material";
+import { FilterButton } from "../Buttons/Buttons";
 
 const columnDefs = [
   {
@@ -83,8 +85,9 @@ const columnDefs = [
 const baseURL = import.meta.env.VITE_BASE_URL;
 
 export const Posts = ({ perPage, setPerPage }) => {
-  const { profilesSelected } = useContext(ProfileContext);
-  const ids = profilesSelected?.map((profile) => profile.id);
+  const [filterModal, setFilterModal] = useState(false);
+  const [selectedProfiles, setSelectedProfiles] = useState([]);
+  const ids = selectedProfiles?.map((profile) => profile.id);
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
@@ -186,13 +189,21 @@ export const Posts = ({ perPage, setPerPage }) => {
     }
   };
 
+  const handleFilter = () => {
+    if (selectedProfiles?.length) {
+      setSelectedProfiles([]);
+    } else {
+      setFilterModal(true);
+    }
+  };
+
   useEffect(() => {
-    if (profilesSelected?.length > 0) {
+    if (selectedProfiles?.length > 0) {
       getPosts({ profileIds: ids });
     } else {
       getPosts();
     }
-  }, [profilesSelected]);
+  }, [selectedProfiles]);
 
   return (
     <div>
@@ -204,6 +215,7 @@ export const Posts = ({ perPage, setPerPage }) => {
         }}
       >
         <h2 style={{ color: "#00165a" }}>Posts</h2>
+        <FilterButton handleFilter={handleFilter} selected={selectedProfiles} />
       </div>
       <TableComponent
         rowData={data?.posts}
@@ -217,6 +229,12 @@ export const Posts = ({ perPage, setPerPage }) => {
         onPageChange={onPageChange}
         onPerPageChange={handlePerPageChange}
         perPage={perPage}
+      />
+      <PostsFilter
+        selectedProfiles={selectedProfiles}
+        setSelectedProfiles={setSelectedProfiles}
+        filterModal={filterModal}
+        setFilterModal={setFilterModal}
       />
     </div>
   );

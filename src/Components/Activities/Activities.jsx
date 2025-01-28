@@ -8,13 +8,15 @@ import { ProfileContext } from "../Home/Home";
 import Modal from "../Modal/Modal";
 
 import { formatTimestamp } from "../../utils";
+import { ActivitiesFilter } from "../Filters/ActivitiesFilter";
+import { FilterButton } from "../Buttons/Buttons";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
-const columnDefs = (activityRef) => [
+const columnDefs = [
   {
     field: "profile",
-    headerName: "Profile",
+    headerName: "Name",
     valueGetter: (params) => params.data.profile.name,
     cellRenderer: (params) => {
       return (
@@ -50,23 +52,6 @@ const columnDefs = (activityRef) => [
     field: "activity_type",
     headerName: "Activity Type",
     flex: 1,
-    headerComponent: (params) => (
-      <div
-        onClick={() => activityRef.current?.showModal()}
-        style={{
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
-        }}
-      >
-        <span>{params.displayName}</span>
-        <span style={{ marginLeft: "5px", fontSize: "12px" }}>
-          <FilterAlt />
-        </span>
-      </div>
-    ),
   },
   {
     flex: 1.4,
@@ -131,11 +116,13 @@ export const Activites = ({ perPage, setPerPage }) => {
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
-  const [activityType, setActivityType] = useState("all");
+
   const token = localStorage.getItem("authToken");
-  const { profilesSelected } = useContext(ProfileContext);
-  const ids = profilesSelected?.map((profile) => profile.id);
-  const activityRef = useRef(null);
+  const [filterModal, setFilterModal] = useState(false);
+  const [selectedProfiles, setSelectedProfiles] = useState([]);
+
+  const ids = selectedProfiles?.map((profile) => profile.id);
+
   const gridApi = useRef(null);
 
   const onGridReady = (params) => {
@@ -153,7 +140,7 @@ export const Activites = ({ perPage, setPerPage }) => {
       ? `&profile_ids=${profileIds.join(",")}`
       : "";
 
-    const selectedActivity = params?.activityType?.trim() || activityType;
+    const selectedActivity = params?.activityType?.trim() || "all";
 
     // Create an object to store non-empty query parameters
     const queryParamsObj = {
@@ -222,18 +209,28 @@ export const Activites = ({ perPage, setPerPage }) => {
     }
   };
 
-  const handleActivityTypeChange = async (value) => {
+  const handleApplyFilter = async ({ activity, profiles }) => {
     const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
+    const ids = profiles?.map((profile) => profile.id);
+
     await getActivities({
-      activityType: value,
+      activityType: activity,
       profileIds: ids,
       sortOrder: sortModel?.sort,
     });
-    activityRef?.current?.close();
+  };
+
+  const handleFilter = () => {
+    if (selectedProfiles?.length) {
+      setSelectedProfiles([]);
+      getActivities();
+    } else {
+      setFilterModal(true);
+    }
   };
 
   useEffect(() => {
-    if (profilesSelected?.length > 0) {
+    if (selectedProfiles?.length > 0) {
       getActivities({ profileIds: ids });
     } else {
       getActivities();
@@ -259,10 +256,11 @@ export const Activites = ({ perPage, setPerPage }) => {
         >
           <h2 style={{ color: "#00165a" }}>Activities</h2>
         </div>
+        <FilterButton handleFilter={handleFilter} selected={selectedProfiles} />
       </div>
       <TableComponent
         rowData={data?.activities}
-        columnDefs={columnDefs(activityRef)}
+        columnDefs={columnDefs}
         onSortChanged={onSortChanged}
         onGridReady={onGridReady}
       />
@@ -273,24 +271,13 @@ export const Activites = ({ perPage, setPerPage }) => {
         onPageChange={onPageChange}
         perPage={perPage}
       />
-      <Modal
-        modalRef={activityRef}
-        title={"Filter Activity Type"}
-        content={
-          <div>
-            <RadioButtons
-              defaultValue="all"
-              options={[
-                { label: "All", value: "all" },
-                { label: "Reaction", value: "reaction" },
-                { label: "Comment", value: "comment" },
-              ]}
-              onChange={handleActivityTypeChange}
-              value={activityType}
-              setValue={setActivityType}
-            />
-          </div>
-        }
+
+      <ActivitiesFilter
+        selectedProfiles={selectedProfiles}
+        setSelectedProfiles={setSelectedProfiles}
+        filterModal={filterModal}
+        setFilterModal={setFilterModal}
+        handleApplyFilter={handleApplyFilter}
       />
     </div>
   );
