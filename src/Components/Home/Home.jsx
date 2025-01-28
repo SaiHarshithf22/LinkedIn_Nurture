@@ -5,6 +5,7 @@ import Tabs from "../Tabs/Tabs";
 import { Profile } from "../Profiles/Profile";
 import { Posts } from "../Posts/Posts";
 import { Activites } from "../Activities/Activities";
+import { Gradient } from "../Gradient/Gradient";
 
 export const ProfileContext = createContext([]);
 
@@ -39,16 +40,21 @@ export const Home = () => {
 
   return (
     <ProfileContext.Provider value={{ profilesSelected, setProfileSelected }}>
-      <div
-        style={{
-          padding: "24px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          backgroundColor: "white",
-        }}
-      >
-        <Tabs tabs={tabData} />
+      <div style={{ padding: "32px", backgroundColor: "#F9F9F9" }}>
+        <div style={{ backgroundColor: "white" }}>
+          <Gradient />
+          <div
+            style={{
+              padding: "32px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "start",
+              backgroundColor: "white",
+            }}
+          >
+            <Tabs tabs={tabData} />
+          </div>
+        </div>
       </div>
     </ProfileContext.Provider>
   );
