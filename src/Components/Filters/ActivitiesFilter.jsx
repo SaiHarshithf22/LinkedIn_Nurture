@@ -64,7 +64,7 @@ export const ActivitiesFilter = ({
             onChange={() => {}}
           />
           <FilterDatePicker
-            label="Post Created at"
+            label="Post Synced at"
             fromSelectedDate={filterTypes?.createdAtStart}
             setFromSelectedDate={(val) =>
               setFilterTypes((prev) => {

@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import TableComponent from "../Table/Table";
 import Modal from "../Modal/Modal";
 import { CustomPagination } from "../CustomPagination/Pagination";
-import { columnDefs } from "./profileData";
+import { columnDefs, profileFilterKeys } from "./profileData";
 import { FilterProfile } from "./ProfileModals";
 import { useToast } from "../Toaster/Toaster";
 import { CustomCheckbox } from "../CustomCheckbox/CustomCheckbox";
@@ -142,9 +142,9 @@ const ModalContent = ({ modalRef }) => {
 
 const initialFilters = {
   profiles: [],
-  scrapePosts: true,
-  scrapeComments: true,
-  scrapeReactions: true,
+  scrapePosts: undefined,
+  scrapeComments: undefined,
+  scrapeReactions: undefined,
 };
 
 export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
@@ -156,6 +156,11 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
   const modalRef = useRef(null);
   const token = localStorage.getItem("authToken");
   const [filterTypes, setFilterTypes] = useState(initialFilters);
+  const gridApi = useRef(null);
+
+  const onGridReady = (params) => {
+    gridApi.current = params.api;
+  };
 
   const getProfiles = async (params) => {
     const {
@@ -163,8 +168,8 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
       perPage = initialPageSize,
       profiles,
       is_scrape_posts,
-      sort_by,
-      sort_order,
+      sortBy,
+      sortOrder,
       is_scrape_comments,
       is_scrape_reactions,
     } = params || {};
@@ -181,8 +186,8 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
     // Add optional parameters if they exist
     if (is_scrape_posts !== undefined)
       queryParams.append("is_scrape_posts", is_scrape_posts);
-    if (sort_by) queryParams.append("sort_by", sort_by);
-    if (sort_order) queryParams.append("sort_order", sort_order);
+    if (sortBy) queryParams.append("sort_by", sortBy);
+    if (sortOrder) queryParams.append("sort_order", sortOrder);
     if (is_scrape_comments !== undefined)
       queryParams.append("is_scrape_comments", is_scrape_comments);
     if (is_scrape_reactions !== undefined)
@@ -214,7 +219,12 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
   };
 
   const onPageChange = (event, value) => {
+    const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
+    const sortBy = profileFilterKeys(sortModel?.colId);
+
     getProfiles({
+      sortOrder: sortModel.sort,
+      sortBy: sortBy,
       page: value,
       profiles: filterTypes?.profiles,
       is_scrape_posts: filterTypes?.scrapePosts,
@@ -224,12 +234,16 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
   };
 
   const handlePerPageChange = (value) => {
+    const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
+    const sortBy = profileFilterKeys(sortModel?.colId);
     getProfiles({
       perPage: value,
       profiles: filterTypes?.profiles,
       is_scrape_posts: filterTypes?.scrapePosts,
       is_scrape_comments: filterTypes?.scrapeComments,
       is_scrape_reactions: filterTypes?.scrapeReactions,
+      sortOrder: sortModel.sort,
+      sortBy: sortBy,
     });
     setPerPage(value);
   };
@@ -240,6 +254,26 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
       getProfiles({});
     } else {
       setFilterModal(true);
+    }
+  };
+
+  const onSortChanged = (event) => {
+    const sortModel = event.api.getColumnState().find((col) => col.sort);
+    const sortBy = profileFilterKeys(sortModel?.colId);
+
+    if (sortModel?.sort) {
+      getProfiles({
+        sortOrder: sortModel.sort,
+        sortBy: sortBy,
+        profiles: filterTypes?.profiles,
+        is_scrape_posts: filterTypes?.scrapePosts,
+        is_scrape_comments: filterTypes?.scrapeComments,
+        is_scrape_reactions: filterTypes?.scrapeReactions,
+      });
+    } else {
+      getProfiles({
+        profiles: filterTypes?.profiles,
+      });
     }
   };
 
@@ -294,8 +328,8 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
       <TableComponent
         rowData={data?.profiles}
         columnDefs={columnDefs}
-        height="600px"
-        width="900px"
+        onSortChanged={onSortChanged}
+        onGridReady={onGridReady}
       />
 
       <CustomPagination

@@ -44,7 +44,7 @@ export const PostsFilter = ({
             setSelectedProfiles={setProfiles}
           />
           <FilterDatePicker
-            label="Post Created at"
+            label="Post Synced at"
             fromSelectedDate={filterTypes?.createdAtStart}
             setFromSelectedDate={(val) =>
               setFilterTypes((prev) => {
@@ -59,7 +59,7 @@ export const PostsFilter = ({
             }
           />
           <FilterDatePicker
-            label="Post Synced at"
+            label="Post Created at"
             fromSelectedDate={filterTypes?.timestampStart}
             setFromSelectedDate={(val) =>
               setFilterTypes((prev) => {
