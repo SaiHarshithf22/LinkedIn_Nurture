@@ -42,17 +42,11 @@ export const UserProfile = () => {
   };
 
   return (
-    <div style={{ padding: "32px", backgroundColor: "#F9F9F9" }}>
+    <div className="home-wrapper">
       <div style={{ backgroundColor: "white" }}>
         <Gradient />
         <div style={{ padding: "24px" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
+          <div className="profile-info">
             <div
               style={{
                 display: "flex",
@@ -60,7 +54,7 @@ export const UserProfile = () => {
                 gap: "26px",
               }}
             >
-              <img src="/userLogo.png" height="110" width="110" />
+              <img src="/userLogo.png" className="user-img" />
               <div
                 style={{
                   display: "flex",
@@ -70,15 +64,7 @@ export const UserProfile = () => {
                 }}
               >
                 <h3>{name}</h3>
-                <p
-                  title={position}
-                  style={{
-                    maxWidth: "400px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
+                <p title={position} className="profile-position">
                   {position}
                 </p>
               </div>
@@ -117,16 +103,7 @@ export const UserProfile = () => {
             </div>
           </div>
         </div>
-        <div
-          style={{
-            padding: "24px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "start",
-            backgroundColor: "white",
-            height: "max-content",
-          }}
-        >
+        <div className="profile-tab-wrapper">
           <Tabs tabs={tabData} />
         </div>
       </div>

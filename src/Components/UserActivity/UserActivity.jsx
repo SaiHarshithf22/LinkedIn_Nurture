@@ -8,9 +8,10 @@ import { formatTimestamp } from "../../utils";
 
 const activityColumnDefs = (activityRef) => [
   {
+    width: 180,
     field: "activity_type",
     headerName: "Activity Type",
-    flex: 1,
+
     headerComponent: (params) => (
       <div
         onClick={() => activityRef.current?.showModal()}
@@ -30,7 +31,7 @@ const activityColumnDefs = (activityRef) => [
     ),
   },
   {
-    flex: 1.4,
+    width: 300,
     field: "url",
     headerName: "Post",
     cellRenderer: (params) => {
@@ -48,7 +49,7 @@ const activityColumnDefs = (activityRef) => [
     tooltipValueGetter: (params) => params?.data?.post_content,
   },
   {
-    flex: 1,
+    width: 200,
     field: "post_author_linkedin_url",
     headerName: "Author Profile",
     cellRenderer: (params) => (
@@ -63,24 +64,21 @@ const activityColumnDefs = (activityRef) => [
     ),
   },
   {
-    flex: 1,
     field: "user_comment",
     headerName: "User Comment",
-    width: 300,
+    width: 220,
     tooltipValueGetter: (params) => params?.value,
   },
   {
-    flex: 1,
     field: "commenter_comment",
     headerName: "Commenter Comment",
-    width: 300,
+    width: 200,
     tooltipValueGetter: (params) => params?.value,
   },
   {
-    flex: 1,
     field: "createdAt",
     headerName: "Post synced at",
-    width: 300,
+    width: 200,
     sortable: true,
     unSortIcon: true,
     valueGetter: (params) => formatTimestamp(params.data.createdAt),
@@ -217,7 +215,7 @@ export const UserActivity = ({ id, perPage, setPerPage }) => {
             cursor: "pointer",
           }}
         >
-          <h2 style={{ color: "#00165a" }}>Activities</h2>
+          <h2 className="page-title">Activities</h2>
         </div>
       </div>
       <TableComponent

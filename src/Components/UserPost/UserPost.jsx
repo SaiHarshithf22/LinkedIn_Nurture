@@ -11,7 +11,7 @@ const postColumnDefs = [
   {
     field: "url",
     headerName: "Post",
-    flex: 2,
+    width: 700,
     cellRenderer: (params) => {
       return (
         <a
@@ -34,8 +34,7 @@ const postColumnDefs = [
   {
     field: "timestamp",
     headerName: "Post created at",
-    width: 200,
-    flex: 1,
+    width: 300,
     sortable: true,
     unSortIcon: true,
     valueGetter: (params) => formatTimestamp(params.data.timestamp),
@@ -43,8 +42,7 @@ const postColumnDefs = [
   {
     field: "createdAt",
     headerName: "Post synced at",
-    width: 200,
-    flex: 1,
+    width: 300,
     sortable: true,
     unSortIcon: true,
     valueGetter: (params) => formatTimestamp(params.data.createdAt),
@@ -164,7 +162,7 @@ export const UserPost = ({ id, perPage, setPerPage }) => {
           marginBottom: "20px",
         }}
       >
-        <h2 style={{ color: "#00165a" }}>Posts</h2>
+        <h2 className="page-title">Posts</h2>
       </div>
       <TableComponent
         rowData={postsData?.posts}

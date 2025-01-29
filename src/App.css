@@ -62,7 +62,33 @@ dialog:-internal-dialog-in-top-layer::backdrop {
   cursor: pointer;
   font-size: 18px;
 }
+.tab-button:focus {
+  outline: none;
+}
 
+.profile-tab-wrapper {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  background-color: white;
+  height: max-content;
+}
+.user-img {
+  height: 100px;
+  width: 100px;
+}
+.profile-position {
+  max-width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.profile-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 @media (max-width: 768px) {
   .custom-button {
     padding: 4px 6px;
@@ -87,5 +113,26 @@ dialog:-internal-dialog-in-top-layer::backdrop {
   .tab-button {
     font-size: 15px;
     padding: 12px 12px 6px 6px;
+  }
+  .profile-tab-wrapper {
+    padding: 8px;
+  }
+  .profile-position {
+    max-width: 350px;
+  }
+  .profile-info {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .user-img {
+    height: 60px;
+    width: 60px;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-position {
+    max-width: 180px;
   }
 }
