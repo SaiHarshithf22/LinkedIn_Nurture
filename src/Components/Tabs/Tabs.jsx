@@ -15,17 +15,9 @@ const Tabs = ({ tabs }) => {
       gap: "4px",
     },
     button: (isActive) => ({
-      padding: "10px 20px 10px 10px",
-      textAlign: "start",
-      background: "none",
-      border: "none",
-      cursor: "pointer",
-      fontSize: "18px",
       fontWeight: isActive ? "bold" : "normal",
       borderBottom: isActive ? "2px solid #007bff" : "",
       color: isActive ? "#1976D2" : "#00000080",
-      transition: "border-color 0.3s, color 0.3s",
-      borderRadius: "0",
     }),
     buttonHover: {
       backgroundColor: "#f9f9f9",
@@ -44,6 +36,7 @@ const Tabs = ({ tabs }) => {
       <div style={styles.header}>
         {tabs.map((tab, index) => (
           <button
+            className="tab-button"
             key={index}
             style={styles.button(activeTab === index)}
             onClick={() => setActiveTab(index)}

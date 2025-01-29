@@ -10,8 +10,7 @@ const columnDefs = [
   {
     field: "profile.name",
     headerName: "Name",
-    width: 200,
-    flex: 1,
+    width: 300,
     cellRenderer: (params) => (
       <div
         style={{
@@ -41,7 +40,7 @@ const columnDefs = [
   {
     field: "url",
     headerName: "Post",
-    flex: 2,
+    width: 400,
     cellRenderer: (params) => {
       return (
         <a
@@ -64,8 +63,7 @@ const columnDefs = [
   {
     field: "timestamp",
     headerName: "Post created at",
-    width: 200,
-    flex: 1,
+    width: 300,
     sortable: true,
     unSortIcon: true,
     valueGetter: (params) => formatTimestamp(params.data.timestamp),
@@ -73,8 +71,7 @@ const columnDefs = [
   {
     field: "createdAt",
     headerName: "Post synced at",
-    width: 200,
-    flex: 1,
+    width: 285,
     sortable: true,
     unSortIcon: true,
     valueGetter: (params) => formatTimestamp(params.data.createdAt),
@@ -272,7 +269,7 @@ export const Posts = ({ perPage, setPerPage }) => {
           marginBottom: "20px",
         }}
       >
-        <h2 style={{ color: "#00165a" }}>Posts</h2>
+        <h2 className="page-title">Posts</h2>
         <FilterButton
           handleFilter={handleFilter}
           isClear={!isDeepEqual(initialFilters, filterTypes)}

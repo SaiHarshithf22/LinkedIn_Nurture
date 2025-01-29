@@ -40,18 +40,10 @@ export const Home = () => {
 
   return (
     <ProfileContext.Provider value={{ profilesSelected, setProfileSelected }}>
-      <div style={{ padding: "32px", backgroundColor: "#F9F9F9" }}>
+      <div className="home-wrapper">
         <div style={{ backgroundColor: "white" }}>
           <Gradient />
-          <div
-            style={{
-              padding: "32px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "start",
-              backgroundColor: "white",
-            }}
-          >
+          <div className="home-tab-wrapper">
             <Tabs tabs={tabData} />
           </div>
         </div>

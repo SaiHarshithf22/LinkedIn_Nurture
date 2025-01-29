@@ -1,3 +1,5 @@
+import { jwtDecode } from "jwt-decode";
+
 export const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp);
   return date.toLocaleString("en-US", {
@@ -63,5 +65,19 @@ export const syncProfile = async (id) => {
   } catch (error) {
     console.error("Error in POST request:", error);
     throw error; // Re-throw the error for handling in calling code
+  }
+};
+
+export const isTokenExpired = () => {
+  const token = localStorage.getItem("authToken");
+  if (!token) return true; // If no token, treat it as expired
+
+  try {
+    const decoded = jwtDecode(token);
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    return decoded.exp < currentTime;
+  } catch (error) {
+    return true; // Token is invalid or can't be decoded
   }
 };

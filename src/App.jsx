@@ -1,20 +1,24 @@
 import { useEffect } from "react";
+import { Route, Routes, useNavigate } from "react-router";
 import { Navbar } from "./Components/Navbar/Navbar";
 import { Login } from "./Components/Login/Login";
 import { ToastProvider } from "./Components/Toaster/Toaster";
-import { Route, Routes, useNavigate } from "react-router";
 import { Home } from "./Components/Home/Home";
 import "./App.css";
 import { UserProfile } from "./Components/UserProfile/UserProfile";
+import { isTokenExpired } from "./utils";
 
 function App() {
-  const token = localStorage.getItem("authToken");
   const navigate = useNavigate();
+
   useEffect(() => {
-    if (!token) {
+    const token = localStorage.getItem("authToken");
+
+    if (!token || isTokenExpired()) {
+      localStorage.removeItem("authToken");
       navigate("/login");
     }
-  }, [token]);
+  }, []);
 
   return (
     <ToastProvider>
