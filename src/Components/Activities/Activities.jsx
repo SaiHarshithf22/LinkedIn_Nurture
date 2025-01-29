@@ -8,7 +8,7 @@ import {
   activitiesSortByKeys,
   activityColumnDefs,
   activityInitialFilters,
-} from "./ActivityData";
+} from "./data";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
