@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router";
-import { useLayoutEffect } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, TextField } from "@mui/material";
 import OTPInput from "../OTPInput/OTPInput";
 import { useToast } from "../Toaster/Toaster";
@@ -77,7 +76,7 @@ export const Login = () => {
     }
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (token) {
       navigate("/");
     }
