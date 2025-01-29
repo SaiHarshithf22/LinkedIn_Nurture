@@ -112,7 +112,7 @@ export const columnDefs = [
     field: "name",
     headerName: "Name",
     width: 200,
-    flex: 1,
+
     cellRenderer: (params) => {
       return (
         <div
@@ -145,32 +145,28 @@ export const columnDefs = [
     field: "position",
     headerName: "Position",
     width: 200,
-    flex: 1,
   },
 
   {
     field: "total_comments",
     headerName: "Total Comments",
-    width: 200,
-    flex: 1,
+    width: 150,
   },
   {
     field: "total_posts",
     headerName: "Total Posts",
-    width: 200,
-    flex: 1,
+    width: 150,
   },
   {
     field: "total_reactions",
     headerName: "Total Reactions",
-    width: 200,
-    flex: 1,
+    width: 150,
   },
   {
     field: "is_scrape_posts",
     headerName: "Scrape Posts",
-    width: 200,
-    flex: 1,
+    width: 150,
+
     cellRenderer: (params) => {
       return <ProfileCheckbox name="is_scrape_posts" data={params} />;
     },
@@ -178,8 +174,8 @@ export const columnDefs = [
   {
     field: "is_scrape_comments",
     headerName: "Scrape Comments",
-    width: 200,
-    flex: 1,
+    width: 175,
+
     cellRenderer: (params) => (
       <ProfileCheckbox name="is_scrape_comments" data={params} />
     ),
@@ -187,8 +183,8 @@ export const columnDefs = [
   {
     field: "is_scrape_reactions",
     headerName: "Scrape Reactions",
-    width: 200,
-    flex: 1,
+    width: 150,
+
     cellRenderer: (params) => (
       <ProfileCheckbox name="is_scrape_reactions" data={params} />
     ),
@@ -197,7 +193,7 @@ export const columnDefs = [
     field: "last_synced_at",
     headerName: "Last Synced",
     width: 200,
-    flex: 1,
+
     valueGetter: (params) => {
       if (params.data.last_synced_at) {
         return formatTimestamp(params.data.last_synced_at);
@@ -215,8 +211,7 @@ export const columnDefs = [
   {
     field: "id",
     headerName: "",
-    width: 200,
-    flex: 0.5,
+    width: 75,
     cellRenderer: (params) => <ActionsMenu id={params?.value} />,
   },
 ];

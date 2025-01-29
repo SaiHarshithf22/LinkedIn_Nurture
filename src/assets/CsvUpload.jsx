@@ -2,14 +2,7 @@ import React from "react";
 
 export const CsvUploadIcon = () => {
   return (
-    <div
-      style={{
-        border: "1px solid #0000004D",
-        padding: "4px 22px",
-        borderRadius: "12px",
-        cursor: "pointer",
-      }}
-    >
+    <div className="csv-icon">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"

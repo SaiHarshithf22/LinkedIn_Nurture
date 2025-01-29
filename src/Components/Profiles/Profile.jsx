@@ -274,7 +274,7 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
           marginBottom: "20px",
         }}
       >
-        <h2 style={{ color: "#00165a" }}>Profiles</h2>
+        <h2 className="page-title">Profiles</h2>
         <div style={{ display: "flex", gap: "8px" }}>
           <CSVUploader />
           <FilterButton

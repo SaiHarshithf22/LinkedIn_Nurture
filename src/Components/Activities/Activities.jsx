@@ -40,16 +40,15 @@ const columnDefs = [
         </div>
       );
     },
-    width: 200,
-    flex: 1,
+    width: 250,
   },
   {
     field: "activity_type",
     headerName: "Activity Type",
-    flex: 1,
+    width: 170,
   },
   {
-    flex: 1.4,
+    width: 250,
     field: "url",
     headerName: "Post",
     cellRenderer: (params) => {
@@ -67,7 +66,7 @@ const columnDefs = [
     tooltipValueGetter: (params) => params?.data?.post_content,
   },
   {
-    flex: 1,
+    width: 200,
     field: "post_author_linkedin_url",
     headerName: "Author Profile",
     cellRenderer: (params) => (
@@ -82,24 +81,21 @@ const columnDefs = [
     ),
   },
   {
-    flex: 1,
     field: "user_comment",
     headerName: "User Comment",
-    width: 300,
+    width: 250,
     tooltipValueGetter: (params) => params?.value,
   },
   {
-    flex: 1,
     field: "commenter_comment",
     headerName: "Commenter Comment",
-    width: 300,
+    width: 250,
     tooltipValueGetter: (params) => params?.value,
   },
   {
-    flex: 1,
     field: "createdAt",
     headerName: "Post synced at",
-    width: 300,
+    width: 250,
     sortable: true,
     unSortIcon: true,
     valueGetter: (params) => formatTimestamp(params.data.createdAt),
@@ -283,7 +279,7 @@ export const Activites = ({ perPage, setPerPage }) => {
             cursor: "pointer",
           }}
         >
-          <h2 style={{ color: "#00165a" }}>Activities</h2>
+          <h2 className="page-title">Activities</h2>
         </div>
         <FilterButton
           handleFilter={handleFilter}
