@@ -1,96 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import TableComponent from "../Table/Table";
 import { CustomPagination } from "../CustomPagination/Pagination";
-import { formatTimestamp, isDeepEqual } from "../../utils";
+import { isDeepEqual } from "../../utils";
 import { PostsFilter } from "../Filters/PostsFilter";
 import { FilterButton } from "../Buttons/Buttons";
-
-const columnDefs = [
-  {
-    field: "profile.name",
-    headerName: "Name",
-    width: 300,
-    cellRenderer: (params) => (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "4px",
-        }}
-      >
-        <a
-          style={{ display: "flex" }}
-          href={params.data.profile.profile}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <LinkedInIcon />
-        </a>
-        <a
-          style={{ color: "black" }}
-          href={`profile/${params.data?.profile?.id}?name=${params?.data?.profile?.name}&profile=${params?.data?.profile?.profile}&position=${params?.data?.profile?.position}`}
-          rel="noopener noreferrer"
-        >
-          {params.data.profile.name}
-        </a>
-      </div>
-    ),
-  },
-  {
-    field: "url",
-    headerName: "Post",
-    width: 400,
-    cellRenderer: (params) => {
-      return (
-        <a
-          style={{ color: "#0056b3" }}
-          href={params.value}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {params?.data?.text
-            ? params?.data?.text
-            : params?.value?.split("com/")?.[1]}
-        </a>
-      );
-    },
-    tooltipValueGetter: (params) =>
-      params?.data?.text
-        ? params?.data?.text
-        : params?.value?.split("com/")?.[1],
-  },
-  {
-    field: "timestamp",
-    headerName: "Post created at",
-    width: 300,
-    sortable: true,
-    unSortIcon: true,
-    valueGetter: (params) => formatTimestamp(params.data.timestamp),
-  },
-  {
-    field: "createdAt",
-    headerName: "Post synced at",
-    width: 285,
-    sortable: true,
-    unSortIcon: true,
-    valueGetter: (params) => formatTimestamp(params.data.createdAt),
-  },
-];
+import { postColumnDefs, postInitialFilters, postSortByKeys } from "./postData";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
-const initialFilters = {
-  profiles: [],
-  timestampEnd: "",
-  timestampStart: "",
-  createdAtEnd: "",
-  createdAtStart: "",
-};
-
 export const Posts = ({ perPage, setPerPage }) => {
   const [filterModal, setFilterModal] = useState(false);
-  const [filterTypes, setFilterTypes] = useState(initialFilters);
+  const [filterTypes, setFilterTypes] = useState(postInitialFilters);
   const [data, setData] = useState({
     pagination: { total: 10, current_page: 1, total_pages: 1, per_page: 20 },
   });
@@ -160,12 +80,7 @@ export const Posts = ({ perPage, setPerPage }) => {
     // Get the current sort model before changing page
     const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
 
-    const sortBy =
-      sortModel?.colId === "createdAt"
-        ? "created_at"
-        : sortModel?.colId === "timestamp"
-        ? "timestamp"
-        : "";
+    const sortBy = postSortByKeys(sortModel?.colId);
     getPosts({
       page: value,
       sortOrder: sortModel?.sort,
@@ -181,12 +96,7 @@ export const Posts = ({ perPage, setPerPage }) => {
   const handlePerPageChange = (value) => {
     // Get the current sort model before changing page size
     const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
-    const sortBy =
-      sortModel?.colId === "createdAt"
-        ? "created_at"
-        : sortModel?.colId === "timestamp"
-        ? "timestamp"
-        : "";
+    const sortBy = postSortByKeys(sortModel?.colId);
     setPerPage(value);
     getPosts({
       perPage: value,
@@ -206,12 +116,8 @@ export const Posts = ({ perPage, setPerPage }) => {
 
   const onSortChanged = (event) => {
     const sortModel = event.api.getColumnState().find((col) => col.sort);
-    const sortBy =
-      sortModel?.colId === "createdAt"
-        ? "created_at"
-        : sortModel?.colId === "timestamp"
-        ? "timestamp"
-        : "";
+
+    const sortBy = postSortByKeys(sortModel?.colId);
     if (sortModel?.sort) {
       getPosts({
         sortOrder: sortModel.sort,
@@ -228,8 +134,8 @@ export const Posts = ({ perPage, setPerPage }) => {
   };
 
   const handleFilter = () => {
-    if (!isDeepEqual(initialFilters, filterTypes)) {
-      setFilterTypes(initialFilters);
+    if (!isDeepEqual(postInitialFilters, filterTypes)) {
+      setFilterTypes(postInitialFilters);
       getPosts();
     } else {
       setFilterModal(true);
@@ -247,7 +153,7 @@ export const Posts = ({ perPage, setPerPage }) => {
   };
 
   useEffect(() => {
-    if (!isDeepEqual(initialFilters, filterTypes)) {
+    if (!isDeepEqual(postInitialFilters, filterTypes)) {
       getPosts({
         profiles: filterTypes?.profiles,
         timestampEnd: filterTypes?.timestampEnd,
@@ -272,12 +178,12 @@ export const Posts = ({ perPage, setPerPage }) => {
         <h2 className="page-title">Posts</h2>
         <FilterButton
           handleFilter={handleFilter}
-          isClear={!isDeepEqual(initialFilters, filterTypes)}
+          isClear={!isDeepEqual(postInitialFilters, filterTypes)}
         />
       </div>
       <TableComponent
         rowData={data?.posts}
-        columnDefs={columnDefs}
+        columnDefs={postColumnDefs}
         onSortChanged={onSortChanged}
         onGridReady={onGridReady}
       />

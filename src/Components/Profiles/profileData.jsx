@@ -11,6 +11,17 @@ const options = ["Sync", "Delete"];
 const baseURL = import.meta.env.VITE_BASE_URL;
 const token = localStorage.getItem("authToken");
 
+export const profileFilterKeys = (colId) => {
+  const sortMap = {
+    name: "name",
+    last_synced_at: "created_at",
+    is_scrape_posts: "is_scrape_posts",
+    is_scrape_comments: "is_scrape_comments",
+    is_scrape_reactions: "is_scrape_reactions",
+  };
+  return sortMap[colId] || "";
+};
+
 const ActionsMenu = ({ id }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
