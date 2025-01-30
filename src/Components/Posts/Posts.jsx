@@ -120,7 +120,7 @@ export const Posts = ({ perPage, setPerPage }) => {
     const sortBy = postSortByKeys(sortModel?.colId);
     if (sortModel?.sort) {
       getPosts({
-        sortOrder: sortModel.sort,
+        sortOrder: sortModel?.sort,
         profiles: filterTypes?.profiles,
         sortBy: sortBy,
         timestampEnd: filterTypes?.timestampEnd,
