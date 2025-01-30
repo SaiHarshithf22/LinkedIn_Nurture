@@ -131,7 +131,7 @@ export const Activites = ({ perPage, setPerPage }) => {
     if (sortModel?.sort) {
       getActivities({
         perPage: perPage,
-        sortOrder: sortModel.sort,
+        sortOrder: sortModel?.sort,
         profiles: filterTypes?.profiles,
         activityType: filterTypes?.activityType,
         sortBy: sortBy,

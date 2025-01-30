@@ -219,11 +219,13 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
   };
 
   const onPageChange = (event, value) => {
-    const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
+    const sortModel = gridApi.current
+      ?.getColumnState()
+      .find((col) => col?.sort);
     const sortBy = profileFilterKeys(sortModel?.colId);
 
     getProfiles({
-      sortOrder: sortModel.sort,
+      sortOrder: sortModel?.sort,
       sortBy: sortBy,
       page: value,
       profiles: filterTypes?.profiles,
@@ -234,7 +236,9 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
   };
 
   const handlePerPageChange = (value) => {
-    const sortModel = gridApi.current?.getColumnState().find((col) => col.sort);
+    const sortModel = gridApi.current
+      ?.getColumnState()
+      .find((col) => col?.sort);
     const sortBy = profileFilterKeys(sortModel?.colId);
     getProfiles({
       perPage: value,
@@ -242,7 +246,7 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
       is_scrape_posts: filterTypes?.scrapePosts,
       is_scrape_comments: filterTypes?.scrapeComments,
       is_scrape_reactions: filterTypes?.scrapeReactions,
-      sortOrder: sortModel.sort,
+      sortOrder: sortModel?.sort,
       sortBy: sortBy,
     });
     setPerPage(value);
@@ -263,7 +267,7 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
 
     if (sortModel?.sort) {
       getProfiles({
-        sortOrder: sortModel.sort,
+        sortOrder: sortModel?.sort,
         sortBy: sortBy,
         profiles: filterTypes?.profiles,
         is_scrape_posts: filterTypes?.scrapePosts,
