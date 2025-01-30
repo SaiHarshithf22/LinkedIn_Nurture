@@ -267,7 +267,7 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
 
     if (sortModel?.sort) {
       getProfiles({
-        sortOrder: sortModel.sort,
+        sortOrder: sortModel?.sort,
         sortBy: sortBy,
         profiles: filterTypes?.profiles,
         is_scrape_posts: filterTypes?.scrapePosts,
