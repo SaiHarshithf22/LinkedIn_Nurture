@@ -33,7 +33,7 @@ const ActionsMenu = ({ id }) => {
   const syncProfileCall = async () => {
     const res = await syncProfile(id);
     if (res) {
-      showToast("Profile Synced");
+      showToast("Sync started successfully");
     }
   };
 
@@ -179,7 +179,10 @@ export const columnDefs = [
     width: 150,
 
     cellRenderer: (params) => {
-      return <ProfileCheckbox name="is_scrape_posts" data={params} />;
+      const obj = {
+        value: params?.data?.user_profile?.is_scrape_posts,
+      };
+      return <ProfileCheckbox name="is_scrape_posts" data={obj} />;
     },
   },
   {
@@ -187,18 +190,24 @@ export const columnDefs = [
     headerName: "Scrape Comments",
     width: 175,
 
-    cellRenderer: (params) => (
-      <ProfileCheckbox name="is_scrape_comments" data={params} />
-    ),
+    cellRenderer: (params) => {
+      const obj = {
+        value: params?.data?.user_profile?.is_scrape_comments,
+      };
+      return <ProfileCheckbox name="is_scrape_comments" data={obj} />;
+    },
   },
   {
     field: "is_scrape_reactions",
     headerName: "Scrape Reactions",
     width: 150,
 
-    cellRenderer: (params) => (
-      <ProfileCheckbox name="is_scrape_reactions" data={params} />
-    ),
+    cellRenderer: (params) => {
+      const obj = {
+        value: params?.data?.user_profile?.is_scrape_comments,
+      };
+      return <ProfileCheckbox name="is_scrape_reactions" data={obj} />;
+    },
   },
   {
     field: "last_synced_at",

@@ -132,12 +132,19 @@ export const Activites = ({ perPage, setPerPage }) => {
       getActivities({
         perPage: perPage,
         sortOrder: sortModel?.sort,
+        sortBy: sortBy,
         profiles: filterTypes?.profiles,
         activityType: filterTypes?.activityType,
-        sortBy: sortBy,
+        createdAtStart: filterTypes?.createdAtStart,
+        createdAtEnd: filterTypes?.createdAtEnd,
       });
     } else {
-      getActivities({ profiles: filterTypes?.profiles });
+      getActivities({
+        profiles: filterTypes?.profiles,
+        activityType: filterTypes?.activityType,
+        createdAtStart: filterTypes?.createdAtStart,
+        createdAtEnd: filterTypes?.createdAtEnd,
+      });
     }
   };
 
@@ -167,6 +174,8 @@ export const Activites = ({ perPage, setPerPage }) => {
       getActivities({
         profiles: filterTypes?.profiles,
         activityType: filterTypes?.activityType,
+        createdAtStart: filterTypes?.createdAtStart,
+        createdAtEnd: filterTypes?.createdAtEnd,
       });
     } else {
       getActivities();

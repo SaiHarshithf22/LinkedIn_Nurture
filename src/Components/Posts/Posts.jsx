@@ -121,15 +121,21 @@ export const Posts = ({ perPage, setPerPage }) => {
     if (sortModel?.sort) {
       getPosts({
         sortOrder: sortModel?.sort,
-        profiles: filterTypes?.profiles,
         sortBy: sortBy,
+        profiles: filterTypes?.profiles,
         timestampEnd: filterTypes?.timestampEnd,
         timestampStart: filterTypes?.timestampStart,
         createdAtEnd: filterTypes?.createdAtEnd,
         createdAtStart: filterTypes?.createdAtStart,
       });
     } else {
-      getPosts({ profiles: filterTypes?.profiles });
+      getPosts({
+        profiles: filterTypes?.profiles,
+        timestampEnd: filterTypes?.timestampEnd,
+        timestampStart: filterTypes?.timestampStart,
+        createdAtEnd: filterTypes?.createdAtEnd,
+        createdAtStart: filterTypes?.createdAtStart,
+      });
     }
   };
 
