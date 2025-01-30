@@ -37,7 +37,7 @@ export const UserProfile = () => {
   const syncProfileCall = async () => {
     const res = await syncProfile(id);
     if (res) {
-      showToast("Profile Synced");
+      showToast("Sync started successfully");
     }
   };
 
