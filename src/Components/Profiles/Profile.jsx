@@ -12,7 +12,7 @@ import { isDeepEqual } from "../../utils";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
-const ModalContent = ({ modalRef }) => {
+const ModalContent = ({ modalRef, getProfiles }) => {
   const [profileUrl, setProfileUrl] = useState("");
   const [scrapePosts, setScrapePosts] = useState(true);
   const [scrapeComments, setScrapeComments] = useState(true);
@@ -37,9 +37,11 @@ const ModalContent = ({ modalRef }) => {
 
     const requestBody = {
       profile: profileUrl,
-      is_scrape_posts: scrapePosts,
-      is_scrape_reactions: scrapeReactions,
-      is_scrape_comments: scrapeComments,
+      user_profile: {
+        is_scrape_posts: scrapePosts,
+        is_scrape_reactions: scrapeReactions,
+        is_scrape_comments: scrapeComments,
+      },
     };
 
     try {
@@ -64,6 +66,7 @@ const ModalContent = ({ modalRef }) => {
         clearForm();
         modalRef.current.close();
         showToast("Profile added successfully");
+        getProfiles();
       }
     } catch (error) {
       console.error("Error posting profiles:", error);
@@ -277,6 +280,9 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
     } else {
       getProfiles({
         profiles: filterTypes?.profiles,
+        is_scrape_posts: filterTypes?.scrapePosts,
+        is_scrape_comments: filterTypes?.scrapeComments,
+        is_scrape_reactions: filterTypes?.scrapeReactions,
       });
     }
   };
@@ -347,7 +353,7 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
       <Modal
         modalRef={modalRef}
         title={"Add New Profile"}
-        content={<ModalContent modalRef={modalRef} />}
+        content={<ModalContent modalRef={modalRef} getProfiles={getProfiles} />}
       />
 
       <FilterProfile
