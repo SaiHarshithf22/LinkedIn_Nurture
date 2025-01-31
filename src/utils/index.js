@@ -41,30 +41,30 @@ export const isDeepEqual = (obj1, obj2) => {
 };
 
 export const syncProfile = async (id) => {
+  const baseURL = import.meta.env.VITE_BASE_URL;
   const token = localStorage.getItem("authToken");
-  const apiUrl = "http://3.109.32.201:8090";
-  const requestBody = {
-    profile_id: id,
-  };
+  const apiUrl = `${baseURL}/linkedin/profiles/${id}/sync`;
 
   try {
     const response = await fetch(apiUrl, {
       method: "POST",
-      mode: "no-cors",
       headers: {
         "Content-Type": "application/json",
         Authorization: token,
       },
-      body: JSON.stringify(requestBody),
     });
 
-    if (!response?.status === 0) {
+    if (response?.status !== 200) {
       throw new Error(`HTTP error! Status: ${response.status}`);
+    } else {
+      const res = await response.json();
+      return {
+        message: res.message,
+      };
     }
-    return true;
   } catch (error) {
     console.error("Error in POST request:", error);
-    throw error; // Re-throw the error for handling in calling code
+    return false;
   }
 };
 

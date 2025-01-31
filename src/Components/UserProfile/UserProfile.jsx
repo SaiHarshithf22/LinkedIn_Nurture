@@ -36,8 +36,10 @@ export const UserProfile = () => {
 
   const syncProfileCall = async () => {
     const res = await syncProfile(id);
-    if (res) {
-      showToast("Sync started successfully");
+    if (res?.message) {
+      showToast(res.message);
+    } else {
+      showToast("Please try again later", "error");
     }
   };
 

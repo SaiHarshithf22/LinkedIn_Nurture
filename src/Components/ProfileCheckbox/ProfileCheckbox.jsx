@@ -10,7 +10,7 @@ export const ProfileCheckbox = ({ data, name }) => {
   const showToast = useToast();
 
   const updateProfile = async (value) => {
-    const apiUrl = `${baseURL}/linkedin/profiles/${data?.data?.id}`;
+    const apiUrl = `${baseURL}/linkedin/profiles/${data?.id}`;
 
     const requestBody = {
       [name]: value,

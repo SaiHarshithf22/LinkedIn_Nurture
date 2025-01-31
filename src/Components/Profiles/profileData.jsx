@@ -32,8 +32,10 @@ const ActionsMenu = ({ id }) => {
 
   const syncProfileCall = async () => {
     const res = await syncProfile(id);
-    if (res) {
-      showToast("Sync started successfully");
+    if (res?.message) {
+      showToast(res.message);
+    } else {
+      showToast("Please try again later", "error");
     }
   };
 
@@ -180,7 +182,8 @@ export const columnDefs = [
 
     cellRenderer: (params) => {
       const obj = {
-        value: params?.data?.user_profile?.is_scrape_posts,
+        id: params?.data?.id,
+        value: params?.data?.userProfile?.is_scrape_posts,
       };
       return <ProfileCheckbox name="is_scrape_posts" data={obj} />;
     },
@@ -192,7 +195,8 @@ export const columnDefs = [
 
     cellRenderer: (params) => {
       const obj = {
-        value: params?.data?.user_profile?.is_scrape_comments,
+        id: params?.data?.id,
+        value: params?.data?.userProfile?.is_scrape_comments,
       };
       return <ProfileCheckbox name="is_scrape_comments" data={obj} />;
     },
@@ -204,7 +208,8 @@ export const columnDefs = [
 
     cellRenderer: (params) => {
       const obj = {
-        value: params?.data?.user_profile?.is_scrape_comments,
+        id: params?.data?.id,
+        value: params?.data?.userProfile?.is_scrape_comments,
       };
       return <ProfileCheckbox name="is_scrape_reactions" data={obj} />;
     },
