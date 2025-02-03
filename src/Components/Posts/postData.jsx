@@ -23,7 +23,7 @@ export const postColumnDefs = [
   {
     field: "profile.name",
     headerName: "Name",
-    width: 300,
+    minWidth: 300,
     cellRenderer: (params) => (
       <div
         style={{
@@ -53,7 +53,8 @@ export const postColumnDefs = [
   {
     field: "url",
     headerName: "Post",
-    width: 400,
+    minWidth: 500,
+    flex: 1,
     cellRenderer: (params) => {
       return (
         <a
@@ -76,7 +77,7 @@ export const postColumnDefs = [
   {
     field: "timestamp",
     headerName: "Post created at",
-    width: 300,
+    minWidth: 300,
     sortable: true,
     unSortIcon: true,
     valueGetter: (params) => formatTimestamp(params.data.timestamp),
@@ -84,7 +85,7 @@ export const postColumnDefs = [
   {
     field: "createdAt",
     headerName: "Post synced at",
-    width: 285,
+    minWidth: 285,
     sortable: true,
     unSortIcon: true,
     valueGetter: (params) => formatTimestamp(params.data.createdAt),

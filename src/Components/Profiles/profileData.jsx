@@ -127,7 +127,7 @@ export const columnDefs = [
   {
     field: "name",
     headerName: "Name",
-    width: 200,
+    minWidth: 200,
     sortable: true,
     cellRenderer: (params) => {
       return (
@@ -160,34 +160,35 @@ export const columnDefs = [
   {
     field: "position",
     headerName: "Position",
-    width: 200,
+    minWidth: 200,
+    flex: 1,
   },
 
   {
     field: "total_comments",
     headerName: "Total Comments",
-    width: 150,
+    minWidth: 150,
     sortable: true,
     valueGetter: (params) => params?.data?.total_comments,
   },
   {
     field: "total_posts",
     headerName: "Total Posts",
-    width: 150,
+    minWidth: 150,
     sortable: true,
     valueGetter: (params) => params?.data?.total_posts,
   },
   {
     field: "total_reactions",
     headerName: "Total Reactions",
-    width: 150,
+    minWidth: 150,
     sortable: true,
     valueGetter: (params) => params?.data?.total_reactions,
   },
   {
     field: "is_scrape_posts",
     headerName: "Scrape Posts",
-    width: 150,
+    minWidth: 150,
     sortable: true,
     cellRenderer: (params) => {
       const obj = {
@@ -200,7 +201,7 @@ export const columnDefs = [
   {
     field: "is_scrape_comments",
     headerName: "Scrape Comments",
-    width: 175,
+    minWidth: 175,
     sortable: true,
     cellRenderer: (params) => {
       const obj = {
@@ -213,7 +214,7 @@ export const columnDefs = [
   {
     field: "is_scrape_reactions",
     headerName: "Scrape Reactions",
-    width: 150,
+    minWidth: 150,
     sortable: true,
     cellRenderer: (params) => {
       const obj = {
@@ -226,7 +227,7 @@ export const columnDefs = [
   {
     field: "last_synced_at",
     headerName: "Last Synced",
-    width: 200,
+    minWidth: 200,
     sortable: true,
     valueGetter: (params) => {
       if (params.data.last_synced_at) {
