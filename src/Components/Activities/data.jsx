@@ -46,6 +46,7 @@ export const activityColumnDefs = [
     field: "activity_type",
     headerName: "Activity Type",
     width: 170,
+    sortable: true,
   },
   {
     width: 250,
