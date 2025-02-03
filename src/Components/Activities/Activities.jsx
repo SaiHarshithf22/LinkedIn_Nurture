@@ -161,11 +161,13 @@ export const Activites = ({ perPage, setPerPage }) => {
   };
 
   const handleFilter = () => {
+    setFilterModal(true);
+  };
+
+  const handleClearFilter = () => {
     if (!isDeepEqual(activityInitialFilters, filterTypes)) {
       setFilterTypes(activityInitialFilters);
       getActivities();
-    } else {
-      setFilterModal(true);
     }
   };
 
@@ -201,10 +203,7 @@ export const Activites = ({ perPage, setPerPage }) => {
         >
           <h2 className="page-title">Activities</h2>
         </div>
-        <FilterButton
-          handleFilter={handleFilter}
-          isClear={!isDeepEqual(activityInitialFilters, filterTypes)}
-        />
+        <FilterButton handleFilter={handleFilter} />
       </div>
       <TableComponent
         rowData={data?.activities}
@@ -226,6 +225,8 @@ export const Activites = ({ perPage, setPerPage }) => {
         filterModal={filterModal}
         setFilterModal={setFilterModal}
         handleApplyFilter={handleApplyFilter}
+        handleClearFilter={handleClearFilter}
+        getData={getActivities}
       />
     </div>
   );

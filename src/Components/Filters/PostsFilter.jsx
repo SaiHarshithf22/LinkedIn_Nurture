@@ -9,6 +9,7 @@ export const PostsFilter = ({
   filterTypes,
   setFilterTypes,
   handleApplyFilter,
+  getData,
 }) => {
   const [profiles, setProfiles] = useState([]);
   const handleFilterClose = () => {
@@ -26,6 +27,20 @@ export const PostsFilter = ({
     handleApplyFilter(profiles);
   };
 
+  const handleClearFilter = () => {
+    setFilterTypes(() => {
+      return {
+        profiles: [],
+        createdAtStart: "",
+        createdAtEnd: "",
+        timestampStart: "",
+        timestampEnd: "",
+      };
+    });
+    setProfiles([]);
+    getData();
+  };
+
   useEffect(() => {
     if (filterTypes?.profiles?.length === 0) {
       setProfiles([]);
@@ -37,6 +52,7 @@ export const PostsFilter = ({
       handleApply={handleSelectProfiles}
       filterModal={filterModal}
       handleFilterClose={handleFilterClose}
+      handleClearFilter={handleClearFilter}
       children={
         <>
           <NameFilter

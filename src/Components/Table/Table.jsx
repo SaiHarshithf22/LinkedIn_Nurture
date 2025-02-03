@@ -9,7 +9,7 @@ const TableComponent = ({
   defaultColDef = {
     resizable: true,
     autoHeight: true,
-    sortable: true,
+    sortable: false,
   },
   onSortChanged,
   onGridReady,
@@ -30,6 +30,7 @@ const TableComponent = ({
         onSortChanged={onSortChanged}
         onGridReady={onGridReady}
         domLayout="autoHeight"
+        suppressSorting={true}
       />
     </div>
   );

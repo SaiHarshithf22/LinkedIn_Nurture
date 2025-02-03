@@ -1,5 +1,6 @@
 import { Dialog, DialogContent } from "@mui/material";
 import { FilledButton, OutlineButton } from "../Buttons/Buttons";
+import { Close } from "@mui/icons-material";
 
 const Modal = ({ title, content, modalRef }) => {
   return (
@@ -31,6 +32,7 @@ export const MaterialDialog = ({
   children,
   handleApply,
   title,
+  handleClearFilter,
 }) => {
   return (
     <Dialog
@@ -41,7 +43,14 @@ export const MaterialDialog = ({
       fullWidth
     >
       <DialogContent sx={{ padding: "32px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "24px",
+            position: "relative",
+          }}
+        >
           <h2 style={{ marginBottom: "-16px" }}>{title}</h2>
           {children}
           <div
@@ -52,8 +61,22 @@ export const MaterialDialog = ({
               gap: "16px",
             }}
           >
-            <OutlineButton children="Cancel" onClick={handleFilterClose} />
+            <OutlineButton
+              children="Clear Filter"
+              onClick={handleClearFilter}
+            />
             <FilledButton children="Apply filters" onClick={handleApply} />
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              right: -24,
+              top: -24,
+              cursor: "pointer",
+            }}
+            onClick={handleFilterClose}
+          >
+            <Close />
           </div>
         </div>
       </DialogContent>

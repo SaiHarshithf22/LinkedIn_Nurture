@@ -140,12 +140,7 @@ export const Posts = ({ perPage, setPerPage }) => {
   };
 
   const handleFilter = () => {
-    if (!isDeepEqual(postInitialFilters, filterTypes)) {
-      setFilterTypes(postInitialFilters);
-      getPosts();
-    } else {
-      setFilterModal(true);
-    }
+    setFilterModal(true);
   };
 
   const handleApplyFilter = async (profiles) => {
@@ -182,10 +177,7 @@ export const Posts = ({ perPage, setPerPage }) => {
         }}
       >
         <h2 className="page-title">Posts</h2>
-        <FilterButton
-          handleFilter={handleFilter}
-          isClear={!isDeepEqual(postInitialFilters, filterTypes)}
-        />
+        <FilterButton handleFilter={handleFilter} />
       </div>
       <TableComponent
         rowData={data?.posts}
@@ -206,6 +198,7 @@ export const Posts = ({ perPage, setPerPage }) => {
         filterModal={filterModal}
         setFilterModal={setFilterModal}
         handleApplyFilter={handleApplyFilter}
+        getData={getPosts}
       />
     </div>
   );

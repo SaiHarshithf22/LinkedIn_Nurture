@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { NameFilter } from "../NameFilter/NameFilter";
 import { MaterialDialog } from "../Modal/Modal";
-import { CustomCheckbox } from "../CustomCheckbox/CustomCheckbox";
+import RadioButtons from "../RadioButton/RadioButton";
 
 export const FilterProfile = ({
   filterModal,
@@ -9,6 +9,7 @@ export const FilterProfile = ({
   handleApplyFilter,
   filterTypes,
   setFilterTypes,
+  getData,
 }) => {
   const [profiles, setProfiles] = useState([]);
 
@@ -27,6 +28,20 @@ export const FilterProfile = ({
     handleApplyFilter(profiles);
   };
 
+  const handleClearFilter = () => {
+    setProfiles([]);
+
+    setFilterTypes(() => {
+      return {
+        profiles: [],
+        scrapePosts: "",
+        scrapeComments: "",
+        scrapeReactions: "",
+      };
+    });
+    getData();
+  };
+
   useEffect(() => {
     if (filterTypes?.profiles?.length === 0) {
       setProfiles([]);
@@ -39,6 +54,7 @@ export const FilterProfile = ({
       handleApply={handleSelectProfiles}
       filterModal={filterModal}
       handleFilterClose={handleFilterClose}
+      handleClearFilter={handleClearFilter}
       children={
         <>
           {" "}
@@ -46,41 +62,59 @@ export const FilterProfile = ({
             selectedProfiles={profiles}
             setSelectedProfiles={setProfiles}
           />
-          <CustomCheckbox
+          <RadioButtons
             label="Scrape Posts"
-            checked={filterTypes?.scrapePosts}
-            setChecked={(value) => {
+            options={[
+              { label: "Both", value: "" },
+              { label: "Enabled", value: "true" },
+              { label: "Disbaled", value: "false" },
+            ]}
+            value={filterTypes?.scrapePosts}
+            setValue={(val) =>
               setFilterTypes((prev) => {
                 return {
                   ...prev,
-                  scrapePosts: value,
+                  scrapePosts: val,
                 };
-              });
-            }}
+              })
+            }
+            onChange={() => {}}
           />
-          <CustomCheckbox
+          <RadioButtons
             label="Scrape Comments"
-            checked={filterTypes?.scrapeComments}
-            setChecked={(value) => {
+            options={[
+              { label: "Both", value: "" },
+              { label: "Enabled", value: "true" },
+              { label: "Disbaled", value: "false" },
+            ]}
+            value={filterTypes?.scrapeComments}
+            setValue={(val) =>
               setFilterTypes((prev) => {
                 return {
                   ...prev,
-                  scrapeComments: value,
+                  scrapeComments: val,
                 };
-              });
-            }}
+              })
+            }
+            onChange={() => {}}
           />
-          <CustomCheckbox
+          <RadioButtons
             label="Scrape Reactions"
-            checked={filterTypes?.scrapeReactions}
-            setChecked={(value) => {
+            options={[
+              { label: "Both", value: "" },
+              { label: "Enabled", value: "true" },
+              { label: "Disabled", value: "false" },
+            ]}
+            value={filterTypes?.scrapeReactions}
+            setValue={(val) =>
               setFilterTypes((prev) => {
                 return {
                   ...prev,
-                  scrapeReactions: value,
+                  scrapeReactions: val,
                 };
-              });
-            }}
+              })
+            }
+            onChange={() => {}}
           />
         </>
       }
