@@ -8,7 +8,6 @@ import { useToast } from "../Toaster/Toaster";
 import { CustomCheckbox } from "../CustomCheckbox/CustomCheckbox";
 import CSVUploader from "../CsvUpload/CsvUpload";
 import { FilledButton, FilterButton, OutlineButton } from "../Buttons/Buttons";
-import { isDeepEqual } from "../../utils";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -145,9 +144,9 @@ const ModalContent = ({ modalRef, getProfiles }) => {
 
 const initialFilters = {
   profiles: [],
-  scrapePosts: undefined,
-  scrapeComments: undefined,
-  scrapeReactions: undefined,
+  scrapePosts: "",
+  scrapeComments: "",
+  scrapeReactions: "",
 };
 
 export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
@@ -187,13 +186,13 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
     });
 
     // Add optional parameters if they exist
-    if (is_scrape_posts !== undefined)
+    if (is_scrape_posts !== undefined && is_scrape_posts !== "")
       queryParams.append("is_scrape_posts", is_scrape_posts);
     if (sortBy) queryParams.append("sort_by", sortBy);
     if (sortOrder) queryParams.append("sort_order", sortOrder);
-    if (is_scrape_comments !== undefined)
+    if (is_scrape_comments !== undefined && is_scrape_comments !== "")
       queryParams.append("is_scrape_comments", is_scrape_comments);
-    if (is_scrape_reactions !== undefined)
+    if (is_scrape_reactions !== undefined && is_scrape_reactions !== "")
       queryParams.append("is_scrape_reactions", is_scrape_reactions);
 
     const apiUrl = `${baseURL}/linkedin/profiles?${queryParams.toString()}${profileIdsQuery}`;
@@ -256,12 +255,7 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
   };
 
   const handleFilter = () => {
-    if (!isDeepEqual(initialFilters, filterTypes)) {
-      setFilterTypes(initialFilters);
-      getProfiles({});
-    } else {
-      setFilterModal(true);
-    }
+    setFilterModal(true);
   };
 
   const onSortChanged = (event) => {
@@ -321,11 +315,7 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
         <h2 className="page-title">Profiles</h2>
         <div style={{ display: "flex", gap: "8px" }}>
           <CSVUploader />
-          <FilterButton
-            handleFilter={handleFilter}
-            selected={filterTypes?.profiles}
-            isClear={!isDeepEqual(initialFilters, filterTypes)}
-          />
+          <FilterButton handleFilter={handleFilter} />
 
           <FilledButton
             children={"Add Profile"}
@@ -362,6 +352,7 @@ export const Profile = ({ perPage: initialPageSize, setPerPage }) => {
         filterTypes={filterTypes}
         setFilterTypes={setFilterTypes}
         handleApplyFilter={handleApplyFilter}
+        getData={getProfiles}
       />
     </div>
   );

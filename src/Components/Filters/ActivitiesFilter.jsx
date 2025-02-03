@@ -10,6 +10,7 @@ export const ActivitiesFilter = ({
   handleApplyFilter,
   filterTypes,
   setFilterTypes,
+  getData,
 }) => {
   const [profiles, setProfiles] = useState([]);
   const handleFilterClose = () => {
@@ -27,6 +28,19 @@ export const ActivitiesFilter = ({
     handleFilterClose();
   };
 
+  const handleClearFilter = () => {
+    setProfiles([]);
+    setFilterTypes(() => {
+      return {
+        profiles: [],
+        activityType: "all",
+        createdAtStart: "",
+        createdAtEnd: "",
+      };
+    });
+    getData();
+  };
+
   useEffect(() => {
     if (filterTypes?.profiles?.length === 0) {
       setProfiles([]);
@@ -38,6 +52,7 @@ export const ActivitiesFilter = ({
       handleApply={handleSelectProfiles}
       filterModal={filterModal}
       handleFilterClose={handleFilterClose}
+      handleClearFilter={handleClearFilter}
       children={
         <>
           <NameFilter
