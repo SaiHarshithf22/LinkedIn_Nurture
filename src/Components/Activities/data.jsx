@@ -40,18 +40,19 @@ export const activityColumnDefs = [
         </div>
       );
     },
-    width: 250,
+    minWidth: 250,
   },
   {
     field: "activity_type",
     headerName: "Activity Type",
-    width: 170,
+    minWidth: 170,
     sortable: true,
   },
   {
-    width: 250,
+    minWidth: 250,
     field: "url",
     headerName: "Post",
+    flex: 1,
     cellRenderer: (params) => {
       return (
         <a
@@ -67,36 +68,40 @@ export const activityColumnDefs = [
     tooltipValueGetter: (params) => params?.data?.post_content,
   },
   {
-    width: 200,
+    minWidth: 200,
     field: "post_author_linkedin_url",
     headerName: "Author Profile",
-    cellRenderer: (params) => (
-      <a
-        style={{ color: "#0056b3" }}
-        href={params.value}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        View Profile
-      </a>
-    ),
+    cellRenderer: (params) => {
+      return (
+        <a
+          style={{ color: "#0056b3" }}
+          href={params.value}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {params?.data?.author_name
+            ? params?.data?.author_name
+            : "View Profile"}
+        </a>
+      );
+    },
   },
   {
     field: "user_comment",
     headerName: "User Comment",
-    width: 250,
+    minWidth: 250,
     tooltipValueGetter: (params) => params?.value,
   },
   {
     field: "commenter_comment",
     headerName: "Commenter Comment",
-    width: 250,
+    minWidth: 250,
     tooltipValueGetter: (params) => params?.value,
   },
   {
     field: "createdAt",
     headerName: "Post synced at",
-    width: 250,
+    minWidth: 250,
     sortable: true,
     unSortIcon: true,
     valueGetter: (params) => formatTimestamp(params.data.createdAt),
