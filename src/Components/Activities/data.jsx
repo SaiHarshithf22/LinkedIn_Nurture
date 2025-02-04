@@ -1,5 +1,6 @@
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import { formatTimestamp } from "../../utils";
+import { SaveContentCheckbox } from "../SaveContentCheckbox/SaveContentCheckbox";
 
 export const activityInitialFilters = {
   profiles: [],
@@ -97,6 +98,20 @@ export const activityColumnDefs = [
     headerName: "Commenter Comment",
     minWidth: 250,
     tooltipValueGetter: (params) => params?.value,
+  },
+  {
+    field: "is_saved",
+    headerName: "Save Activity?",
+    minWidth: 150,
+    sortable: true,
+    cellRenderer: (params) => {
+      const obj = {
+        id: params?.data?.id,
+        value: params?.data?.is_saved,
+        type: "Activity",
+      };
+      return <SaveContentCheckbox name="is_saved" data={obj} />;
+    },
   },
   {
     field: "createdAt",

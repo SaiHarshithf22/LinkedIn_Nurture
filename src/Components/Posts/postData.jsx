@@ -1,5 +1,6 @@
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import { formatTimestamp } from "../../utils";
+import { SaveContentCheckbox } from "../SaveContentCheckbox/SaveContentCheckbox";
 
 export const postSortByKeys = (colId) => {
   const sortMap = {
@@ -73,6 +74,20 @@ export const postColumnDefs = [
       params?.data?.text
         ? params?.data?.text
         : params?.value?.split("com/")?.[1],
+  },
+  {
+    field: "is_saved",
+    headerName: "Save Post?",
+    minWidth: 150,
+    sortable: true,
+    cellRenderer: (params) => {
+      const obj = {
+        id: params?.data?.id,
+        value: params?.data?.is_saved,
+        type: "Post",
+      };
+      return <SaveContentCheckbox name="is_saved" data={obj} />;
+    },
   },
   {
     field: "timestamp",
