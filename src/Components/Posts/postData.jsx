@@ -34,7 +34,7 @@ export const postColumnDefs = [
       >
         <a
           style={{ display: "flex" }}
-          href={params?.data?.profile?.profile}
+          href={params?.data?.new_profile?.profile}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -42,10 +42,10 @@ export const postColumnDefs = [
         </a>
         <a
           style={{ color: "black" }}
-          href={`profile/${params?.data?.profile?.id}?name=${params?.data?.profile?.name}&profile=${params?.data?.profile?.profile}&position=${params?.data?.profile?.position}`}
+          href={`profile/${params?.data?.new_profile?.id}?name=${params?.data?.new_profile?.name}&profile=${params?.data?.new_profile?.profile}&position=${params?.data?.new_profile?.position}`}
           rel="noopener noreferrer"
         >
-          {params?.data?.profile?.name}
+          {params?.data?.new_profile?.name}
         </a>
       </div>
     ),
